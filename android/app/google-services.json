@@ -1,0 +1,30 @@
+{
+  "project_info": {
+    "project_number": "279410526870",
+    "firebase_url": "https://paya-75f62-default-rtdb.firebaseio.com",
+    "project_id": "paya-75f62",
+    "storage_bucket": "paya-75f62.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:279410526870:android:b21c45fa18350adca910b7",
+        "android_client_info": {
+          "package_name": "com.example.pa_ya"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyCNrdZxgn9_9WIkkUqWrLN2EoMP1P_otdg"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
