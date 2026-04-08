@@ -334,6 +334,7 @@ class OrderSummaryScreen extends StatelessWidget {
       'timestamp': currentTimestamp,
       'totalPrice': totalPrice,
       'items': itemsList,
+      'status': 'preparing',
     };
 
     final newOrderRef = dbRef.push();
@@ -489,6 +490,22 @@ class CustomerHistoryScreen extends StatelessWidget {
                   itemBuilder: (context, index) {
                     final order = sortedOrders[index];
                     final bool isActive = activeOrders.containsKey(order.id);
+                    final String status = isActive
+                        ? (activeOrders[order.id]['status'] ?? 'preparing')
+                        : 'completed';
+
+                    String statusText;
+                    Color statusColor;
+                    if (status == 'preparing') {
+                      statusText = 'En preparación';
+                      statusColor = Colors.orange;
+                    } else if (status == 'ready') {
+                      statusText = '¡Listo!';
+                      statusColor = Colors.blue;
+                    } else {
+                      statusText = 'Terminado';
+                      statusColor = Colors.green;
+                    }
 
                     return Card(
                       margin: const EdgeInsets.all(12.0),
@@ -509,12 +526,10 @@ class CustomerHistoryScreen extends StatelessWidget {
                                 ),
                                 Chip(
                                   label: Text(
-                                    isActive ? 'En preparación' : 'Terminado',
+                                    statusText,
                                     style: const TextStyle(color: Colors.white),
                                   ),
-                                  backgroundColor: isActive
-                                      ? Colors.orange
-                                      : Colors.green,
+                                  backgroundColor: statusColor,
                                 ),
                               ],
                             ),
@@ -609,6 +624,7 @@ class _ChefScreenState extends State<ChefScreen> {
                 final double total = (order['totalPrice'] ?? 0).toDouble();
                 final List items = order['items'] ?? [];
                 final int timestamp = (order['timestamp'] ?? 0) as int;
+                final String status = order['status'] ?? 'preparing';
 
                 return Card(
                   margin: const EdgeInsets.all(12.0),
@@ -627,23 +643,48 @@ class _ChefScreenState extends State<ChefScreen> {
                                 fontWeight: FontWeight.bold,
                               ),
                             ),
-                            IconButton(
-                              icon: const Icon(
-                                Icons.check_circle,
-                                color: Colors.green,
-                                size: 30,
-                              ),
-                              tooltip: 'Marcar como listo',
-                              onPressed: () {
-                                _ordersRef.child(orderId).remove();
-                                ScaffoldMessenger.of(context).showSnackBar(
-                                  const SnackBar(
-                                    content: Text(
-                                      'Pedido completado y eliminado',
+                            Row(
+                              children: [
+                                if (status == 'preparing')
+                                  IconButton(
+                                    icon: const Icon(
+                                      Icons.notifications_active,
+                                      color: Colors.blue,
+                                      size: 30,
                                     ),
+                                    tooltip: 'Avisar que está listo',
+                                    onPressed: () {
+                                      _ordersRef.child(orderId).update({
+                                        'status': 'ready',
+                                      });
+                                      ScaffoldMessenger.of(
+                                        context,
+                                      ).showSnackBar(
+                                        const SnackBar(
+                                          content: Text(
+                                            'Notificado al cliente',
+                                          ),
+                                        ),
+                                      );
+                                    },
                                   ),
-                                );
-                              },
+                                IconButton(
+                                  icon: const Icon(
+                                    Icons.check_circle,
+                                    color: Colors.green,
+                                    size: 30,
+                                  ),
+                                  tooltip: 'Finalizar y eliminar',
+                                  onPressed: () {
+                                    _ordersRef.child(orderId).remove();
+                                    ScaffoldMessenger.of(context).showSnackBar(
+                                      const SnackBar(
+                                        content: Text('Pedido completado'),
+                                      ),
+                                    );
+                                  },
+                                ),
+                              ],
                             ),
                           ],
                         ),
