@@ -3,6 +3,7 @@ import 'package:firebase_core/firebase_core.dart';
 import 'package:firebase_database/firebase_database.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:flutter_ringtone_player/flutter_ringtone_player.dart';
+import 'package:google_fonts/google_fonts.dart';
 import 'dart:convert';
 import 'dart:async';
 import 'firebase_options.dart';
@@ -133,44 +134,106 @@ class UserSelectionScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    const Color bgColor = Color(0xFFFCF9F5);
+    const Color rustColor = Color(0xFFA03215);
+
     return Scaffold(
-      appBar: AppBar(title: const Text('Bienvenidos al Restaurante')),
-      body: Center(
-        child: Column(
+      backgroundColor: bgColor,
+      body: SafeArea(
+        child: Center(
+          child: Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 40.0),
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                Icon(
+                  Icons.restaurant_outlined,
+                  size: 64,
+                  color: rustColor,
+                ),
+                const SizedBox(height: 24),
+                Text(
+                  'Savor Atelier',
+                  style: GoogleFonts.playfairDisplay(
+                    fontSize: 42,
+                    fontWeight: FontWeight.w700,
+                    color: Colors.black87,
+                  ),
+                  textAlign: TextAlign.center,
+                ),
+                const SizedBox(height: 8),
+                Text(
+                  'Selecciona tu perfil',
+                  style: GoogleFonts.inter(
+                    fontSize: 14,
+                    color: Colors.black54,
+                    letterSpacing: 1.2,
+                  ),
+                ),
+                const SizedBox(height: 64),
+                _buildRoleButton(
+                  context,
+                  title: 'CLIENTE',
+                  icon: Icons.person_outline,
+                  onTap: () => Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (context) => const CustomerMenuScreen(),
+                    ),
+                  ),
+                ),
+                const SizedBox(height: 16),
+                _buildRoleButton(
+                  context,
+                  title: 'CHEF',
+                  icon: Icons.outdoor_grill_outlined,
+                  onTap: () => Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (context) => const ChefScreen(),
+                    ),
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+
+  Widget _buildRoleButton(BuildContext context, {required String title, required IconData icon, required VoidCallback onTap}) {
+    const Color rustColor = Color(0xFFA03215);
+    return InkWell(
+      onTap: onTap,
+      borderRadius: BorderRadius.circular(16),
+      child: Container(
+        width: double.infinity,
+        padding: const EdgeInsets.symmetric(vertical: 20),
+        decoration: BoxDecoration(
+          color: Colors.white,
+          borderRadius: BorderRadius.circular(16),
+          border: Border.all(color: rustColor.withOpacity(0.2)),
+          boxShadow: [
+            BoxShadow(
+              color: rustColor.withOpacity(0.05),
+              blurRadius: 10,
+              offset: const Offset(0, 4),
+            ),
+          ],
+        ),
+        child: Row(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            const Text(
-              '¿Quién eres?',
-              style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
-            ),
-            const SizedBox(height: 30),
-            ElevatedButton.icon(
-              onPressed: () {
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(
-                    builder: (context) => const CustomerMenuScreen(),
-                  ),
-                );
-              },
-              icon: const Icon(Icons.person),
-              label: const Padding(
-                padding: EdgeInsets.symmetric(horizontal: 20, vertical: 15),
-                child: Text('Cliente', style: TextStyle(fontSize: 18)),
-              ),
-            ),
-            const SizedBox(height: 20),
-            ElevatedButton.icon(
-              onPressed: () {
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(builder: (context) => const ChefScreen()),
-                );
-              },
-              icon: const Icon(Icons.restaurant_menu),
-              label: const Padding(
-                padding: EdgeInsets.symmetric(horizontal: 40, vertical: 15),
-                child: Text('Chef', style: TextStyle(fontSize: 18)),
+            Icon(icon, color: rustColor, size: 24),
+            const SizedBox(width: 12),
+            Text(
+              title,
+              style: GoogleFonts.inter(
+                fontSize: 16,
+                fontWeight: FontWeight.w700,
+                letterSpacing: 1.5,
+                color: rustColor,
               ),
             ),
           ],
@@ -255,15 +318,36 @@ class _CustomerMenuScreenState extends State<CustomerMenuScreen> {
 
   @override
   Widget build(BuildContext context) {
+    const Color bgColor = Color(0xFFFCF9F5);
+    const Color cardColor = Color(0xFFF6EFE8);
+    const Color rustColor = Color(0xFFA03215);
+
     return Scaffold(
+      backgroundColor: bgColor,
       appBar: AppBar(
-        title: const Text('Nuestro Menú'),
+        backgroundColor: Colors.transparent,
+        elevation: 0,
+        leading: IconButton(
+          icon: const Icon(Icons.arrow_back, color: rustColor),
+          onPressed: () => Navigator.of(context).pop(),
+        ),
+        title: Text(
+          'Menú',
+          style: GoogleFonts.playfairDisplay(
+            color: rustColor,
+            fontSize: 24,
+            fontWeight: FontWeight.w600,
+            fontStyle: FontStyle.italic,
+          ),
+        ),
+        centerTitle: false,
         actions: [
           IconButton(
             icon: Badge(
               isLabelVisible: misPedidosLocales.isNotEmpty,
-              label: Text('${misPedidosLocales.length}'),
-              child: const Icon(Icons.receipt_long),
+              backgroundColor: rustColor,
+              label: Text('${misPedidosLocales.length}', style: const TextStyle(color: Colors.white)),
+              child: const Icon(Icons.receipt_long, color: rustColor),
             ),
             tooltip: 'Mis Pedidos',
             onPressed: () {
@@ -278,79 +362,123 @@ class _CustomerMenuScreenState extends State<CustomerMenuScreen> {
         ],
       ),
       body: ListView.builder(
+        padding: const EdgeInsets.symmetric(horizontal: 24.0, vertical: 8.0),
         itemCount: dishes.length,
         itemBuilder: (context, index) {
           final dish = dishes[index];
           final quantity = quantities[dish.id]!;
 
-          return Card(
-            margin: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 8.0),
-            child: Padding(
-              padding: const EdgeInsets.all(8.0),
-              child: ListTile(
-                leading: CircleAvatar(
-                  backgroundColor: Theme.of(
-                    context,
-                  ).colorScheme.primaryContainer,
+          return Container(
+            margin: const EdgeInsets.only(bottom: 16.0),
+            decoration: BoxDecoration(
+              color: cardColor,
+              borderRadius: BorderRadius.circular(16),
+            ),
+            padding: const EdgeInsets.all(16.0),
+            child: Row(
+              children: [
+                Container(
+                  width: 56,
+                  height: 56,
+                  decoration: BoxDecoration(
+                    color: Colors.white,
+                    borderRadius: BorderRadius.circular(12),
+                  ),
                   child: Icon(
                     dish.icon,
-                    size: 30,
-                    color: Theme.of(context).colorScheme.primary,
+                    size: 28,
+                    color: rustColor,
                   ),
                 ),
-                title: Text(
-                  dish.name,
-                  style: const TextStyle(fontWeight: FontWeight.bold),
+                const SizedBox(width: 16),
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        dish.name,
+                        style: GoogleFonts.inter(
+                          fontSize: 16,
+                          fontWeight: FontWeight.w600,
+                          color: Colors.black87,
+                        ),
+                      ),
+                      const SizedBox(height: 4),
+                      Text(
+                        '\$${dish.price.toStringAsFixed(2)}',
+                        style: GoogleFonts.playfairDisplay(
+                          fontSize: 16,
+                          fontWeight: FontWeight.w700,
+                          color: rustColor,
+                        ),
+                      ),
+                    ],
+                  ),
                 ),
-                subtitle: Text('\$${dish.price.toStringAsFixed(2)}'),
-                trailing: Row(
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    IconButton(
-                      icon: const Icon(Icons.remove_circle_outline),
-                      color: Colors.red,
-                      onPressed: () {
-                        if (quantity > 0) {
-                          setState(() {
-                            quantities[dish.id] = quantity - 1;
-                          });
-                        }
-                      },
-                    ),
-                    SizedBox(
-                      width: 20,
-                      child: Center(
-                        child: Text(
-                          '$quantity',
-                          style: const TextStyle(
-                            fontSize: 18,
-                            fontWeight: FontWeight.bold,
+                Container(
+                  padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                  decoration: BoxDecoration(
+                    color: Colors.white,
+                    borderRadius: BorderRadius.circular(20),
+                    border: Border.all(color: Colors.grey.shade300),
+                  ),
+                  child: Row(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      InkWell(
+                        onTap: () {
+                          if (quantity > 0) {
+                            setState(() {
+                              quantities[dish.id] = quantity - 1;
+                            });
+                          }
+                        },
+                        child: const Icon(Icons.remove, size: 20, color: Colors.black54),
+                      ),
+                      SizedBox(
+                        width: 32,
+                        child: Center(
+                          child: Text(
+                            '$quantity',
+                            style: GoogleFonts.inter(
+                              fontSize: 14,
+                              fontWeight: FontWeight.bold,
+                              color: Colors.black87,
+                            ),
                           ),
                         ),
                       ),
-                    ),
-                    IconButton(
-                      icon: const Icon(Icons.add_circle_outline),
-                      color: Colors.green,
-                      onPressed: () {
-                        setState(() {
-                          quantities[dish.id] = quantity + 1;
-                        });
-                      },
-                    ),
-                  ],
+                      InkWell(
+                        onTap: () {
+                          setState(() {
+                            quantities[dish.id] = quantity + 1;
+                          });
+                        },
+                        child: const Icon(Icons.add, size: 20, color: rustColor),
+                      ),
+                    ],
+                  ),
                 ),
-              ),
+              ],
             ),
           );
         },
       ),
-      // Floating Action Button
-      floatingActionButton: FloatingActionButton.extended(
-        onPressed: _askForDishes,
-        label: const Text('Pedir'),
-        icon: const Icon(Icons.send),
-      ),
+      floatingActionButton: quantities.values.any((q) => q > 0)
+          ? FloatingActionButton.extended(
+              backgroundColor: rustColor,
+              foregroundColor: Colors.white,
+              onPressed: _askForDishes,
+              label: Text(
+                'AÑADIR ORDEN',
+                style: GoogleFonts.inter(
+                  fontWeight: FontWeight.w700,
+                  letterSpacing: 1.0,
+                ),
+              ),
+              icon: const Icon(Icons.shopping_bag_outlined),
+            )
+          : null,
     );
   }
 }
@@ -425,83 +553,172 @@ class OrderSummaryScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    const Color bgColor = Color(0xFFFCF9F5);
+    const Color cardColor = Color(0xFFF6EFE8);
+    const Color rustColor = Color(0xFFA03215);
+
     return Scaffold(
-      appBar: AppBar(title: const Text('Resumen del Pedido')),
+      backgroundColor: bgColor,
+      appBar: AppBar(
+        backgroundColor: Colors.transparent,
+        elevation: 0,
+        leading: IconButton(
+          icon: const Icon(Icons.arrow_back, color: rustColor),
+          onPressed: () => Navigator.of(context).pop(),
+        ),
+        title: Text(
+          'Mi Orden',
+          style: GoogleFonts.playfairDisplay(
+            color: rustColor,
+            fontSize: 24,
+            fontWeight: FontWeight.w600,
+            fontStyle: FontStyle.italic,
+          ),
+        ),
+        centerTitle: false,
+      ),
       body: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          const Padding(
-            padding: EdgeInsets.all(16.0),
+          Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 24.0, vertical: 16.0),
             child: Text(
-              'Revisa tu pedido antes de enviarlo:',
-              style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+              'Revisa tu pedido antes\nde enviarlo',
+              style: GoogleFonts.playfairDisplay(
+                fontSize: 28,
+                fontWeight: FontWeight.w700,
+                color: Colors.black87,
+                height: 1.2,
+              ),
             ),
           ),
           Expanded(
             child: ListView.builder(
+              padding: const EdgeInsets.symmetric(horizontal: 24.0),
               itemCount: orderedItems.length,
               itemBuilder: (context, index) {
                 final item = orderedItems[index];
-                return ListTile(
-                  leading: Icon(item.dish.icon),
-                  title: Text(item.dish.name),
-                  subtitle: Text('Cantidad: ${item.quantity}'),
-                  trailing: Text(
-                    '\$${(item.dish.price * item.quantity).toStringAsFixed(2)}',
+                return Padding(
+                  padding: const EdgeInsets.only(bottom: 16.0),
+                  child: Row(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Container(
+                        width: 48,
+                        height: 48,
+                        decoration: BoxDecoration(
+                          color: cardColor,
+                          borderRadius: BorderRadius.circular(12),
+                        ),
+                        child: Icon(item.dish.icon, color: rustColor),
+                      ),
+                      const SizedBox(width: 16),
+                      Expanded(
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text(
+                              item.dish.name,
+                              style: GoogleFonts.inter(
+                                fontSize: 16,
+                                fontWeight: FontWeight.w600,
+                                color: Colors.black87,
+                              ),
+                            ),
+                            const SizedBox(height: 4),
+                            Text(
+                              'Cantidad: ${item.quantity}',
+                              style: GoogleFonts.inter(
+                                fontSize: 13,
+                                color: Colors.black54,
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                      Text(
+                        '\$${(item.dish.price * item.quantity).toStringAsFixed(2)}',
+                        style: GoogleFonts.inter(
+                          fontSize: 16,
+                          fontWeight: FontWeight.w600,
+                          color: Colors.black87,
+                        ),
+                      ),
+                    ],
                   ),
                 );
               },
             ),
           ),
           Container(
-            padding: const EdgeInsets.all(24.0),
+            padding: const EdgeInsets.all(32.0),
             decoration: BoxDecoration(
-              color: Theme.of(context).colorScheme.primaryContainer,
+              color: Colors.white,
               borderRadius: const BorderRadius.only(
-                topLeft: Radius.circular(20),
-                topRight: Radius.circular(20),
+                topLeft: Radius.circular(32),
+                topRight: Radius.circular(32),
               ),
-            ),
-            child: Column(
-              children: [
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    const Text(
-                      'Total a pagar:',
-                      style: TextStyle(
-                        fontSize: 20,
-                        fontWeight: FontWeight.bold,
-                      ),
-                    ),
-                    Text(
-                      '\$${totalPrice.toStringAsFixed(2)}',
-                      style: const TextStyle(
-                        fontSize: 20,
-                        fontWeight: FontWeight.bold,
-                      ),
-                    ),
-                  ],
+              boxShadow: [
+                BoxShadow(
+                  color: Colors.black.withOpacity(0.05),
+                  blurRadius: 20,
+                  offset: const Offset(0, -5),
                 ),
-                const SizedBox(height: 20),
-                SizedBox(
-                  width: double.infinity,
-                  child: ElevatedButton(
-                    style: ElevatedButton.styleFrom(
-                      padding: const EdgeInsets.symmetric(vertical: 15),
-                      backgroundColor: Theme.of(context).colorScheme.primary,
-                      foregroundColor: Theme.of(context).colorScheme.onPrimary,
-                    ),
-                    onPressed: () => _submitOrder(context),
-                    child: const Text(
-                      'Confirmar y Enviar a Cocina',
-                      style: TextStyle(
-                        fontSize: 18,
-                        fontWeight: FontWeight.bold,
+              ],
+            ),
+            child: SafeArea(
+              top: false,
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      Text(
+                        'TOTAL A PAGAR',
+                        style: GoogleFonts.inter(
+                          fontSize: 12,
+                          fontWeight: FontWeight.w600,
+                          letterSpacing: 1.2,
+                          color: Colors.black54,
+                        ),
+                      ),
+                      Text(
+                        '\$${totalPrice.toStringAsFixed(2)}',
+                        style: GoogleFonts.playfairDisplay(
+                          fontSize: 28,
+                          fontWeight: FontWeight.bold,
+                          color: Colors.black87,
+                        ),
+                      ),
+                    ],
+                  ),
+                  const SizedBox(height: 24),
+                  SizedBox(
+                    width: double.infinity,
+                    height: 56,
+                    child: ElevatedButton(
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: rustColor,
+                        foregroundColor: Colors.white,
+                        elevation: 0,
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(16),
+                        ),
+                      ),
+                      onPressed: () => _submitOrder(context),
+                      child: Text(
+                        'ENVIAR A COCINA',
+                        style: GoogleFonts.inter(
+                          fontSize: 14,
+                          fontWeight: FontWeight.w700,
+                          letterSpacing: 1.2,
+                        ),
                       ),
                     ),
                   ),
-                ),
-              ],
+                ],
+              ),
             ),
           ),
         ],
@@ -519,6 +736,263 @@ class CustomerHistoryScreen extends StatefulWidget {
 }
 
 class _CustomerHistoryScreenState extends State<CustomerHistoryScreen> {
+  static const Color bgColor = Color(0xFFFCF9F5);
+  static const Color cardColor = Color(0xFFF6EFE8);
+  static const Color rustColor = Color(0xFFA03215);
+
+  Widget _buildOrderCard(
+    LocalOrder order,
+    String statusText,
+    Color statusColor,
+    Color statusTextColor,
+    bool isPreparing,
+    BuildContext context,
+  ) {
+    return Container(
+      margin: const EdgeInsets.only(bottom: 24.0),
+      decoration: BoxDecoration(
+        color: cardColor,
+        borderRadius: BorderRadius.circular(16),
+      ),
+      padding: const EdgeInsets.all(20.0),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          // Header Row
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      'REFERENCIA DE PEDIDO',
+                      style: GoogleFonts.inter(
+                        fontSize: 10,
+                        fontWeight: FontWeight.w600,
+                        letterSpacing: 1.2,
+                        color: Colors.black54,
+                      ),
+                    ),
+                    const SizedBox(height: 4),
+                    Text(
+                      '#SA-${order.id.substring(order.id.length > 5 ? order.id.length - 5 : 0).toUpperCase()}',
+                      style: GoogleFonts.playfairDisplay(
+                        fontSize: 22,
+                        fontWeight: FontWeight.bold,
+                        color: Colors.black87,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+              Column(
+                crossAxisAlignment: CrossAxisAlignment.end,
+                children: [
+                  Container(
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 12,
+                      vertical: 6,
+                    ),
+                    decoration: BoxDecoration(
+                      color: statusColor,
+                      borderRadius: BorderRadius.circular(20),
+                    ),
+                    child: Text(
+                      statusText.toUpperCase(),
+                      style: GoogleFonts.inter(
+                        fontSize: 10,
+                        fontWeight: FontWeight.w700,
+                        letterSpacing: 0.8,
+                        color: statusTextColor,
+                      ),
+                    ),
+                  ),
+                  const SizedBox(height: 6),
+                  Text(
+                    'Hoy, ${formatTime(order.timestamp)}',
+                    style: GoogleFonts.inter(
+                      fontSize: 12,
+                      color: Colors.black54,
+                    ),
+                  ),
+                ],
+              ),
+            ],
+          ),
+          const SizedBox(height: 24),
+          // Items
+          ...order.items.map((item) {
+            return Padding(
+              padding: const EdgeInsets.only(bottom: 16.0),
+              child: Row(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Container(
+                    width: 48,
+                    height: 48,
+                    decoration: BoxDecoration(
+                      color: Colors.grey.shade300,
+                      borderRadius: BorderRadius.circular(12),
+                    ),
+                    child: const Icon(Icons.restaurant, color: Colors.black54),
+                  ),
+                  const SizedBox(width: 16),
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          item['name'],
+                          style: GoogleFonts.inter(
+                            fontSize: 15,
+                            fontWeight: FontWeight.w600,
+                            color: Colors.black87,
+                          ),
+                        ),
+                        const SizedBox(height: 4),
+                        Text(
+                          'Cantidad: ${item['quantity']}',
+                          style: GoogleFonts.inter(
+                            fontSize: 13,
+                            color: Colors.black54,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                  Text(
+                    '\$${double.parse(item['price'].toString()).toStringAsFixed(2)}',
+                    style: GoogleFonts.inter(
+                      fontSize: 15,
+                      fontWeight: FontWeight.w500,
+                      color: Colors.black87,
+                    ),
+                  ),
+                ],
+              ),
+            );
+          }),
+          const SizedBox(height: 16),
+          // Footer
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            crossAxisAlignment: CrossAxisAlignment.end,
+            children: [
+              // Action Button
+              isPreparing
+                  ? SizedBox()
+                  : TextButton.icon(
+                      style: TextButton.styleFrom(
+                        padding: EdgeInsets.zero,
+                        foregroundColor: rustColor,
+                        alignment: Alignment.centerLeft,
+                      ),
+                      onPressed: () {
+                        showDialog(
+                          context: context,
+                          builder: (BuildContext context) {
+                            return AlertDialog(
+                              title: const Text('Pagar Pedido'),
+                              content: Column(
+                                mainAxisSize: MainAxisSize.min,
+                                children: [
+                                  const Text(
+                                    'Escanea con tu billetera virtual',
+                                  ),
+                                  const SizedBox(height: 20),
+                                  GestureDetector(
+                                    onTap: () {
+                                      Navigator.push(
+                                        context,
+                                        MaterialPageRoute(
+                                          builder: (_) => Scaffold(
+                                            backgroundColor: Colors.black,
+                                            appBar: AppBar(
+                                              backgroundColor: Colors.black,
+                                              iconTheme: const IconThemeData(
+                                                color: Colors.white,
+                                              ),
+                                            ),
+                                            body: Center(
+                                              child: InteractiveViewer(
+                                                child: Image.asset(
+                                                  'assets/qr.jpeg',
+                                                ),
+                                              ),
+                                            ),
+                                          ),
+                                        ),
+                                      );
+                                    },
+                                    child: Image.asset(
+                                      'assets/qr.jpeg',
+                                      width: 200,
+                                      height: 200,
+                                      fit: BoxFit.contain,
+                                    ),
+                                  ),
+                                  const SizedBox(height: 20),
+                                  Text(
+                                    'Total: \$${order.total.toStringAsFixed(2)}',
+                                    style: const TextStyle(
+                                      fontSize: 24,
+                                      fontWeight: FontWeight.bold,
+                                    ),
+                                  ),
+                                ],
+                              ),
+                              actions: [
+                                TextButton(
+                                  onPressed: () => Navigator.of(context).pop(),
+                                  child: const Text('Cerrar'),
+                                ),
+                              ],
+                            );
+                          },
+                        );
+                      },
+                      icon: const Icon(Icons.qr_code, size: 18),
+                      label: Text(
+                        'PAGAR CON QR',
+                        style: GoogleFonts.inter(
+                          fontSize: 12,
+                          fontWeight: FontWeight.w700,
+                          letterSpacing: 0.8,
+                        ),
+                      ),
+                    ),
+              Column(
+                crossAxisAlignment: CrossAxisAlignment.end,
+                children: [
+                  Text(
+                    'SALDO TOTAL',
+                    style: GoogleFonts.inter(
+                      fontSize: 10,
+                      fontWeight: FontWeight.w600,
+                      letterSpacing: 1.2,
+                      color: Colors.black54,
+                    ),
+                  ),
+                  Text(
+                    '\$${order.total.toStringAsFixed(2)}',
+                    style: GoogleFonts.playfairDisplay(
+                      fontSize: 24,
+                      fontWeight: FontWeight.bold,
+                      color: isPreparing ? rustColor : Colors.black87,
+                    ),
+                  ),
+                ],
+              ),
+            ],
+          ),
+        ],
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     // Sort local orders newest first
@@ -526,202 +1000,185 @@ class _CustomerHistoryScreenState extends State<CustomerHistoryScreen> {
       ..sort((a, b) => b.timestamp.compareTo(a.timestamp));
 
     return Scaffold(
-      appBar: AppBar(title: const Text('Mis Pedidos Anteriores')),
-      body: sortedOrders.isEmpty
-          ? const Center(
-              child: Text(
-                'Aún no has hecho ningún pedido.',
-                style: TextStyle(fontSize: 18),
-              ),
-            )
-          : StreamBuilder(
-              stream: FirebaseDatabase.instance.ref('orders').onValue,
-              builder: (context, snapshot) {
-                Map<dynamic, dynamic> activeOrders = {};
-                if (snapshot.hasData && snapshot.data!.snapshot.value != null) {
-                  activeOrders =
-                      snapshot.data!.snapshot.value as Map<dynamic, dynamic>;
-                }
-
-                return ListView.builder(
-                  itemCount: sortedOrders.length,
-                  itemBuilder: (context, index) {
-                    final order = sortedOrders[index];
-                    final bool isActive = activeOrders.containsKey(order.id);
-                    final String status = isActive
-                        ? (activeOrders[order.id]['status'] ?? 'preparing')
-                        : 'completed';
-
-                    String statusText;
-                    Color statusColor;
-                    if (status == 'preparing') {
-                      statusText = 'En preparación';
-                      statusColor = Colors.orange;
-                    } else if (status == 'ready') {
-                      statusText = '¡Listo!';
-                      statusColor = Colors.blue;
-                    } else {
-                      statusText = 'Terminado';
-                      statusColor = Colors.green;
-                    }
-
-                    return Card(
-                      margin: const EdgeInsets.all(12.0),
-                      child: Padding(
-                        padding: const EdgeInsets.all(12.0),
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Row(
-                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                              children: [
-                                Expanded(
-                                  child: Text(
-                                    'Pedido #${order.id.substring(order.id.length > 4 ? order.id.length - 4 : 0).toUpperCase()} - ${formatTime(order.timestamp)}',
-                                    style: const TextStyle(
-                                      fontSize: 18,
-                                      fontWeight: FontWeight.bold,
-                                    ),
-                                  ),
-                                ),
-                                const SizedBox(width: 8),
-                                  Row(
-                                    children: [
-                                      Chip(
-                                        label: Text(
-                                          statusText,
-                                          style: const TextStyle(
-                                            color: Colors.white,
-                                          ),
-                                        ),
-                                        backgroundColor: statusColor,
-                                      ),
-                                      if (status != 'preparing')
-                                        ElevatedButton.icon(
-                                          icon: const Icon(Icons.qr_code),
-                                          label: const Text('Pagar'),
-                                          style: ElevatedButton.styleFrom(
-                                            backgroundColor: Colors.green,
-                                            foregroundColor: Colors.white,
-                                          ),
-                                          onPressed: () {
-                                            showDialog(
-                                              context: context,
-                                              builder: (BuildContext context) {
-                                                return AlertDialog(
-                                                  title: const Text('Pagar Pedido'),
-                                                  content: Column(
-                                                    mainAxisSize: MainAxisSize.min,
-                                                    children: [
-                                                      const Text('Escanea con tu billetera virtual'),
-                                                      const SizedBox(height: 20),
-                                                      GestureDetector(
-                                                        onTap: () {
-                                                          Navigator.push(
-                                                            context,
-                                                            MaterialPageRoute(
-                                                              builder: (_) => Scaffold(
-                                                                backgroundColor: Colors.black,
-                                                                appBar: AppBar(
-                                                                  backgroundColor: Colors.black,
-                                                                  iconTheme: const IconThemeData(color: Colors.white),
-                                                                ),
-                                                                body: Center(
-                                                                  child: InteractiveViewer(
-                                                                    child: Image.asset('assets/qr.jpeg'),
-                                                                  ),
-                                                                ),
-                                                              ),
-                                                            ),
-                                                          );
-                                                        },
-                                                        child: Image.asset(
-                                                          'assets/qr.jpeg',
-                                                          width: 200,
-                                                          height: 200,
-                                                          fit: BoxFit.contain,
-                                                        ),
-                                                      ),
-                                                      const SizedBox(height: 20),
-                                                      Text(
-                                                        'Total: \$${order.total.toStringAsFixed(2)}',
-                                                        style: const TextStyle(
-                                                          fontSize: 24,
-                                                          fontWeight: FontWeight.bold,
-                                                        ),
-                                                      ),
-                                                    ],
-                                                  ),
-                                                  actions: [
-                                                    TextButton(
-                                                      onPressed: () => Navigator.of(context).pop(),
-                                                      child: const Text('Cerrar'),
-                                                    ),
-                                                  ],
-                                                );
-                                              },
-                                            );
-                                          },
-                                        ),
-                                      /*  IconButton(
-                                        icon: const Icon(Icons.delete, color: Colors.red),
-                                        onPressed: () async {
-                                          if (isActive) {
-                                            FirebaseDatabase.instance.ref('orders').child(order.id).remove();
-                                          }
-                                          setState(() {
-                                            misPedidosLocales.removeWhere((o) => o.id == order.id);
-                                          });
-                                          await saveLocalOrders();
-                                          if (context.mounted) {
-                                            ScaffoldMessenger.of(context).showSnackBar(
-                                              const SnackBar(content: Text('Pedido eliminado')),
-                                            );
-                                          }
-                                        },
-                                      ), */
-                                    ],
-                                  ),
-                              ],
-                            ),
-                            const Divider(),
-                            ...order.items.map((item) {
-                              return Padding(
-                                padding: const EdgeInsets.symmetric(
-                                  vertical: 4.0,
-                                ),
-                                child: Row(
-                                  mainAxisAlignment:
-                                      MainAxisAlignment.spaceBetween,
-                                  children: [
-                                    Text(
-                                      '${item['quantity']}x ${item['name']}',
-                                      style: const TextStyle(fontSize: 16),
-                                    ),
-                                    Text(
-                                      '\$${item['price']} c/u',
-                                      style: const TextStyle(fontSize: 16),
-                                    ),
-                                  ],
-                                ),
-                              );
-                            }),
-                            const Divider(),
-                            Text(
-                              'Total: \$${order.total.toStringAsFixed(2)}',
-                              style: const TextStyle(
-                                fontSize: 16,
-                                fontWeight: FontWeight.bold,
-                              ),
-                            ),
-                          ],
-                        ),
-                      ),
-                    );
-                  },
-                );
-              },
+      backgroundColor: bgColor,
+      appBar: AppBar(
+        backgroundColor: Colors.transparent,
+        elevation: 0,
+        leading: IconButton(
+          icon: const Icon(Icons.arrow_back, color: rustColor),
+          onPressed: () => Navigator.of(context).pop(),
+        ),
+        title: Text(
+          'Pedidos',
+          style: GoogleFonts.playfairDisplay(
+            color: rustColor,
+            fontSize: 24,
+            fontWeight: FontWeight.w600,
+            fontStyle: FontStyle.italic,
+          ),
+        ),
+        centerTitle: false,
+      ),
+      body: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Padding(
+            padding: const EdgeInsets.symmetric(
+              horizontal: 24.0,
+              vertical: 16.0,
             ),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  'Mis Pedidos\nAnteriores',
+                  style: GoogleFonts.playfairDisplay(
+                    fontSize: 36,
+                    fontWeight: FontWeight.w700,
+                    color: Colors.black87,
+                    height: 1.1,
+                  ),
+                ),
+                const SizedBox(height: 12),
+                Text(
+                  'Una retrospectiva de tu viaje culinario en Savor\nAtelier.',
+                  style: GoogleFonts.inter(
+                    fontSize: 14,
+                    color: Colors.black54,
+                    height: 1.4,
+                  ),
+                ),
+              ],
+            ),
+          ),
+          Expanded(
+            child: sortedOrders.isEmpty
+                ? Center(
+                    child: Text(
+                      'Aún no has hecho ningún pedido.',
+                      style: GoogleFonts.inter(
+                        fontSize: 16,
+                        color: Colors.black54,
+                      ),
+                    ),
+                  )
+                : StreamBuilder(
+                    stream: FirebaseDatabase.instance.ref('orders').onValue,
+                    builder: (context, snapshot) {
+                      Map<dynamic, dynamic> activeOrders = {};
+                      if (snapshot.hasData &&
+                          snapshot.data!.snapshot.value != null) {
+                        activeOrders =
+                            snapshot.data!.snapshot.value
+                                as Map<dynamic, dynamic>;
+                      }
+
+                      return ListView.builder(
+                        padding: const EdgeInsets.symmetric(
+                          horizontal: 24.0,
+                          vertical: 16.0,
+                        ),
+                        itemCount: sortedOrders.length,
+                        itemBuilder: (context, index) {
+                          final order = sortedOrders[index];
+                          final bool isActive = activeOrders.containsKey(
+                            order.id,
+                          );
+                          final String status = isActive
+                              ? (activeOrders[order.id]['status'] ??
+                                    'preparing')
+                              : 'completed';
+
+                          String statusText;
+                          Color statusColor;
+                          Color statusTextColor;
+                          bool isPreparing = false;
+
+                          if (status == 'preparing') {
+                            statusText = 'En preparación';
+                            statusColor = const Color(0xFFF5E0D8);
+                            statusTextColor = rustColor;
+                            isPreparing = true;
+                          } else if (status == 'ready') {
+                            statusText = '¡Listo!';
+                            statusColor = const Color(0xFFD9F2FB);
+                            statusTextColor = const Color(0xFF007BFF);
+                          } else {
+                            statusText = 'Entregado';
+                            statusColor = const Color(0xFFDEE8DD);
+                            statusTextColor = const Color(0xFF2B702B);
+                          }
+
+                          return _buildOrderCard(
+                            order,
+                            statusText,
+                            statusColor,
+                            statusTextColor,
+                            isPreparing,
+                            context,
+                          );
+                        },
+                      );
+                    },
+                  ),
+          ),
+        ],
+      ),
+      bottomNavigationBar: SafeArea(
+        child: Container(
+          margin: const EdgeInsets.only(left: 32, right: 32, bottom: 24),
+          padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 24),
+          decoration: BoxDecoration(
+            color: Colors.white,
+            borderRadius: BorderRadius.circular(40),
+            boxShadow: [
+              BoxShadow(
+                color: Colors.black.withOpacity(0.05),
+                blurRadius: 20,
+                offset: const Offset(0, 10),
+              ),
+            ],
+          ),
+          child: Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              _buildNavItem(Icons.home_filled, 'INICIO', false),
+              _buildNavItem(Icons.receipt_long, 'PEDIDOS', true),
+              _buildNavItem(Icons.person, 'PERFIL', false),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+
+  Widget _buildNavItem(IconData icon, String label, bool isActive) {
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+      decoration: BoxDecoration(
+        color: isActive ? const Color(0xFFFCF0ED) : Colors.transparent,
+        borderRadius: BorderRadius.circular(20),
+      ),
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Icon(
+            icon,
+            color: isActive ? rustColor : Colors.grey.shade400,
+            size: 20,
+          ),
+          const SizedBox(height: 4),
+          Text(
+            label,
+            style: GoogleFonts.inter(
+              fontSize: 10,
+              fontWeight: FontWeight.w700,
+              letterSpacing: 0.5,
+              color: isActive ? rustColor : Colors.grey.shade400,
+            ),
+          ),
+        ],
+      ),
     );
   }
 }
@@ -764,23 +1221,49 @@ class _ChefScreenState extends State<ChefScreen> {
 
   @override
   Widget build(BuildContext context) {
+    const Color bgColor = Color(0xFFFCF9F5);
+    const Color cardColor = Color(0xFFF6EFE8);
+    const Color rustColor = Color(0xFFA03215);
+
     return Scaffold(
-      appBar: AppBar(title: const Text('Consola del Chef (En Vivo)')),
+      backgroundColor: bgColor,
+      appBar: AppBar(
+        backgroundColor: Colors.transparent,
+        elevation: 0,
+        leading: IconButton(
+          icon: const Icon(Icons.arrow_back, color: rustColor),
+          onPressed: () => Navigator.of(context).pop(),
+        ),
+        title: Text(
+          'Consola del Chef',
+          style: GoogleFonts.playfairDisplay(
+            color: rustColor,
+            fontSize: 24,
+            fontWeight: FontWeight.w600,
+            fontStyle: FontStyle.italic,
+          ),
+        ),
+        centerTitle: false,
+      ),
       body: StreamBuilder(
         stream: _ordersRef.onValue,
         builder: (context, snapshot) {
           if (snapshot.connectionState == ConnectionState.waiting) {
-            return const Center(child: CircularProgressIndicator());
+            return const Center(child: CircularProgressIndicator(color: rustColor));
           }
           if (snapshot.hasError) {
-            return Center(child: Text('Error: ${snapshot.error}'));
+            return Center(
+              child: Text(
+                'Error: ${snapshot.error}',
+                style: GoogleFonts.inter(color: Colors.red),
+              ),
+            );
           }
 
           if (snapshot.hasData && snapshot.data!.snapshot.value != null) {
             final Map<dynamic, dynamic> ordersMap =
                 snapshot.data!.snapshot.value as Map<dynamic, dynamic>;
 
-            // Convert to list and sort by timestamp
             final ordersList = ordersMap.entries.map((e) {
               return {
                 'key': e.key,
@@ -793,6 +1276,7 @@ class _ChefScreenState extends State<ChefScreen> {
             );
 
             return ListView.builder(
+              padding: const EdgeInsets.symmetric(horizontal: 24.0, vertical: 16.0),
               itemCount: ordersList.length,
               itemBuilder: (context, index) {
                 final order = ordersList[index];
@@ -802,177 +1286,249 @@ class _ChefScreenState extends State<ChefScreen> {
                 final int timestamp = (order['timestamp'] ?? 0) as int;
                 final String status = order['status'] ?? 'preparing';
 
-                return Card(
-                  margin: const EdgeInsets.all(12.0),
-                  child: Padding(
-                    padding: const EdgeInsets.all(12.0),
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Row(
-                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                          children: [
-                            Text(
-                              'Pedido #${orderId.substring(orderId.length > 4 ? orderId.length - 4 : 0).toUpperCase()} - ${formatTime(timestamp)}',
-                              style: const TextStyle(
-                                fontSize: 18,
-                                fontWeight: FontWeight.bold,
-                              ),
-                            ),
-                            Row(
+                String statusText;
+                Color statusColor;
+                Color statusTextColor;
+                bool isPreparing = false;
+                
+                if (status == 'preparing') {
+                  statusText = 'En preparación';
+                  statusColor = const Color(0xFFF5E0D8);
+                  statusTextColor = rustColor;
+                  isPreparing = true;
+                } else if (status == 'ready') {
+                  statusText = '¡Listo!';
+                  statusColor = const Color(0xFFD9F2FB);
+                  statusTextColor = const Color(0xFF007BFF);
+                } else {
+                  statusText = 'Entregado';
+                  statusColor = const Color(0xFFDEE8DD);
+                  statusTextColor = const Color(0xFF2B702B);
+                }
+
+                return Container(
+                  margin: const EdgeInsets.only(bottom: 24.0),
+                  decoration: BoxDecoration(
+                    color: cardColor,
+                    borderRadius: BorderRadius.circular(16),
+                  ),
+                  padding: const EdgeInsets.all(20.0),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Expanded(
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
                               children: [
-                                if (status == 'preparing')
-                                  IconButton(
-                                    icon: const Icon(
-                                      Icons.notifications_active,
-                                      color: Colors.blue,
-                                      size: 30,
+                                Text(
+                                  'REFERENCIA DE PEDIDO',
+                                  style: GoogleFonts.inter(
+                                    fontSize: 10,
+                                    fontWeight: FontWeight.w600,
+                                    letterSpacing: 1.2,
+                                    color: Colors.black54,
+                                  ),
+                                ),
+                                const SizedBox(height: 4),
+                                Text(
+                                  '#SA-${orderId.substring(orderId.length > 5 ? orderId.length - 5 : 0).toUpperCase()}',
+                                  style: GoogleFonts.playfairDisplay(
+                                    fontSize: 22,
+                                    fontWeight: FontWeight.bold,
+                                    color: Colors.black87,
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ),
+                          Column(
+                            crossAxisAlignment: CrossAxisAlignment.end,
+                            children: [
+                              Container(
+                                padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+                                decoration: BoxDecoration(
+                                  color: statusColor,
+                                  borderRadius: BorderRadius.circular(20),
+                                ),
+                                child: Text(
+                                  statusText.toUpperCase(),
+                                  style: GoogleFonts.inter(
+                                    fontSize: 10,
+                                    fontWeight: FontWeight.w700,
+                                    letterSpacing: 0.8,
+                                    color: statusTextColor,
+                                  ),
+                                ),
+                              ),
+                              const SizedBox(height: 6),
+                              Text(
+                                'Hoy, ${formatTime(timestamp)}',
+                                style: GoogleFonts.inter(
+                                  fontSize: 12,
+                                  color: Colors.black54,
+                                ),
+                              ),
+                            ],
+                          ),
+                        ],
+                      ),
+                      const SizedBox(height: 24),
+                      ...items.map((item) {
+                        return Padding(
+                          padding: const EdgeInsets.only(bottom: 16.0),
+                          child: Row(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Container(
+                                width: 48,
+                                height: 48,
+                                decoration: BoxDecoration(
+                                  color: Colors.white,
+                                  borderRadius: BorderRadius.circular(12),
+                                ),
+                                child: const Icon(Icons.restaurant, color: rustColor),
+                              ),
+                              const SizedBox(width: 16),
+                              Expanded(
+                                child: Column(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: [
+                                    Text(
+                                      item['name'],
+                                      style: GoogleFonts.inter(
+                                        fontSize: 15,
+                                        fontWeight: FontWeight.w600,
+                                        color: Colors.black87,
+                                      ),
                                     ),
-                                    tooltip: 'Avisar que está listo',
-                                    onPressed: () {
-                                      showDialog(
-                                        context: context,
-                                        builder: (BuildContext context) {
-                                          return AlertDialog(
-                                            title: const Text(
-                                              'Confirmar estado',
-                                            ),
-                                            content: const Text(
-                                              '¿Estás seguro de que este pedido está listo?',
-                                            ),
-                                            actions: [
-                                              TextButton(
-                                                onPressed: () =>
-                                                    Navigator.of(context).pop(),
-                                                child: const Text('Cancelar'),
-                                              ),
-                                              TextButton(
-                                                onPressed: () {
-                                                  _ordersRef
-                                                      .child(orderId)
-                                                      .update({
-                                                        'status': 'ready',
-                                                      });
-                                                  Navigator.of(context).pop();
-                                                  ScaffoldMessenger.of(
-                                                    context,
-                                                  ).showSnackBar(
-                                                    const SnackBar(
-                                                      content: Text(
-                                                        'Notificado al cliente',
-                                                      ),
-                                                    ),
-                                                  );
-                                                },
-                                                child: const Text(
-                                                  'Confirmar',
-                                                  style: TextStyle(
-                                                    color: Colors.blue,
-                                                  ),
-                                                ),
-                                              ),
-                                            ],
-                                          );
-                                        },
-                                      );
-                                    },
-                                  ),
-                                IconButton(
-                                  icon: const Icon(
-                                    Icons.delete,
-                                    color: Colors.red,
-                                    size: 30,
-                                  ),
-                                  tooltip: 'Eliminar pedido',
-                                  onPressed: () {
-                                    showDialog(
-                                      context: context,
-                                      builder: (BuildContext context) {
-                                        return AlertDialog(
-                                          title: const Text(
-                                            'Confirmar eliminación',
-                                          ),
-                                          content: const Text(
-                                            '¿Estás seguro de que deseas eliminar este pedido?',
-                                          ),
-                                          actions: [
-                                            TextButton(
-                                              onPressed: () =>
-                                                  Navigator.of(context).pop(),
-                                              child: const Text('Cancelar'),
-                                            ),
-                                            TextButton(
-                                              onPressed: () {
-                                                _ordersRef
-                                                    .child(orderId)
-                                                    .remove();
-                                                Navigator.of(context).pop();
-                                                ScaffoldMessenger.of(
-                                                  context,
-                                                ).showSnackBar(
-                                                  const SnackBar(
-                                                    content: Text(
-                                                      'Pedido eliminado',
-                                                    ),
-                                                  ),
-                                                );
-                                              },
-                                              child: const Text(
-                                                'Eliminar',
-                                                style: TextStyle(
-                                                  color: Colors.red,
-                                                ),
-                                              ),
-                                            ),
-                                          ],
-                                        );
-                                      },
+                                    const SizedBox(height: 4),
+                                    Text(
+                                      'Cantidad: ${item['quantity']}',
+                                      style: GoogleFonts.inter(
+                                        fontSize: 13,
+                                        color: Colors.black54,
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                              ),
+                            ],
+                          ),
+                        );
+                      }),
+                      const SizedBox(height: 8),
+                      // Actions
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.end,
+                        children: [
+                          if (isPreparing)
+                            ElevatedButton.icon(
+                              style: ElevatedButton.styleFrom(
+                                backgroundColor: Colors.white,
+                                foregroundColor: const Color(0xFF007BFF),
+                                elevation: 0,
+                                shape: RoundedRectangleBorder(
+                                  borderRadius: BorderRadius.circular(12),
+                                ),
+                              ),
+                              onPressed: () {
+                                showDialog(
+                                  context: context,
+                                  builder: (BuildContext context) {
+                                    return AlertDialog(
+                                      title: const Text('Confirmar estado'),
+                                      content: const Text('¿Estás seguro de que este pedido está listo?'),
+                                      actions: [
+                                        TextButton(
+                                          onPressed: () => Navigator.of(context).pop(),
+                                          child: const Text('Cancelar'),
+                                        ),
+                                        TextButton(
+                                          onPressed: () {
+                                            _ordersRef.child(orderId).update({'status': 'ready'});
+                                            Navigator.of(context).pop();
+                                          },
+                                          child: const Text('Confirmar', style: TextStyle(color: Colors.blue)),
+                                        ),
+                                      ],
                                     );
                                   },
+                                );
+                              },
+                              icon: const Icon(Icons.check_circle_outline, size: 18),
+                              label: Text(
+                                'MARCAR LISTO',
+                                style: GoogleFonts.inter(
+                                  fontSize: 12,
+                                  fontWeight: FontWeight.w700,
+                                  letterSpacing: 0.8,
                                 ),
-                              ],
+                              ),
                             ),
-                          ],
-                        ),
-                        const Divider(),
-                        ...items.map((item) {
-                          return Padding(
-                            padding: const EdgeInsets.symmetric(vertical: 4.0),
-                            child: Row(
-                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                              children: [
-                                Text(
-                                  '${item['quantity']}x ${item['name']}',
-                                  style: const TextStyle(fontSize: 16),
-                                ),
-                                Text(
-                                  '\$${item['price']} c/u',
-                                  style: const TextStyle(fontSize: 16),
-                                ),
-                              ],
+                          const SizedBox(width: 12),
+                          ElevatedButton.icon(
+                            style: ElevatedButton.styleFrom(
+                              backgroundColor: Colors.white,
+                              foregroundColor: Colors.red,
+                              elevation: 0,
+                              shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(12),
+                              ),
                             ),
-                          );
-                        }),
-                        const Divider(),
-                        Text(
-                          'Total: \$${total.toStringAsFixed(2)}',
-                          style: const TextStyle(
-                            fontSize: 16,
-                            fontWeight: FontWeight.bold,
+                            onPressed: () {
+                              showDialog(
+                                context: context,
+                                builder: (BuildContext context) {
+                                  return AlertDialog(
+                                    title: const Text('Confirmar eliminación'),
+                                    content: const Text('¿Estás seguro de que deseas eliminar este pedido?'),
+                                    actions: [
+                                      TextButton(
+                                        onPressed: () => Navigator.of(context).pop(),
+                                        child: const Text('Cancelar'),
+                                      ),
+                                      TextButton(
+                                        onPressed: () {
+                                          _ordersRef.child(orderId).remove();
+                                          Navigator.of(context).pop();
+                                        },
+                                        child: const Text('Eliminar', style: TextStyle(color: Colors.red)),
+                                      ),
+                                    ],
+                                  );
+                                },
+                              );
+                            },
+                            icon: const Icon(Icons.delete_outline, size: 18),
+                            label: Text(
+                              'TERMINAR',
+                              style: GoogleFonts.inter(
+                                fontSize: 12,
+                                fontWeight: FontWeight.w700,
+                                letterSpacing: 0.8,
+                              ),
+                            ),
                           ),
-                        ),
-                      ],
-                    ),
+                        ],
+                      ),
+                    ],
                   ),
                 );
               },
             );
           }
 
-          return const Center(
+          return Center(
             child: Text(
-              'No hay pedidos activos',
-              style: TextStyle(fontSize: 18),
+              'No hay pedidos en curso',
+              style: GoogleFonts.inter(
+                fontSize: 16,
+                color: Colors.black54,
+              ),
             ),
           );
         },

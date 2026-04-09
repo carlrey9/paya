@@ -5,4 +5,4 @@ enum UserType {
 }
 
 // Cambia esta constante para elegir el tipo de usuario inicial
-const UserType currentUserRole = UserType.customer;
+const UserType currentUserRole = UserType.chef;
