@@ -1,11 +1,17 @@
 import 'package:flutter/material.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:firebase_database/firebase_database.dart';
+import 'package:shared_preferences/shared_preferences.dart';
+import 'package:flutter_ringtone_player/flutter_ringtone_player.dart';
+import 'dart:convert';
+import 'dart:async';
 import 'firebase_options.dart';
+import 'constants.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform);
+  await loadLocalOrders();
   runApp(const RestaurantApp());
 }
 
@@ -14,13 +20,27 @@ class RestaurantApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    Widget initialScreen;
+    switch (currentUserRole) {
+      case UserType.customer:
+        initialScreen = const CustomerMenuScreen();
+        break;
+      case UserType.chef:
+        initialScreen = const ChefScreen();
+        break;
+      case UserType.selection:
+      default:
+        initialScreen = const UserSelectionScreen();
+        break;
+    }
+
     return MaterialApp(
       title: 'App de Restaurante',
       theme: ThemeData(
         colorScheme: ColorScheme.fromSeed(seedColor: Colors.blue),
         useMaterial3: true,
       ),
-      home: const UserSelectionScreen(),
+      home: initialScreen,
     );
   }
 }
@@ -53,9 +73,42 @@ class LocalOrder {
     required this.items,
     required this.timestamp,
   });
+
+  Map<String, dynamic> toMap() {
+    return {'id': id, 'total': total, 'items': items, 'timestamp': timestamp};
+  }
+
+  factory LocalOrder.fromMap(Map<String, dynamic> map) {
+    return LocalOrder(
+      id: map['id'],
+      total: map['total'],
+      items: List.from(map['items']),
+      timestamp: map['timestamp'],
+    );
+  }
+
+  String toJson() => json.encode(toMap());
+
+  factory LocalOrder.fromJson(String source) =>
+      LocalOrder.fromMap(json.decode(source));
 }
 
 final List<LocalOrder> misPedidosLocales = [];
+
+Future<void> saveLocalOrders() async {
+  final prefs = await SharedPreferences.getInstance();
+  List<String> ordersJson = misPedidosLocales.map((o) => o.toJson()).toList();
+  await prefs.setStringList('local_orders', ordersJson);
+}
+
+Future<void> loadLocalOrders() async {
+  final prefs = await SharedPreferences.getInstance();
+  List<String>? ordersJson = prefs.getStringList('local_orders');
+  if (ordersJson != null) {
+    misPedidosLocales.clear();
+    misPedidosLocales.addAll(ordersJson.map((o) => LocalOrder.fromJson(o)));
+  }
+}
 
 // Model for an Ordered Item
 class OrderItem {
@@ -342,7 +395,6 @@ class OrderSummaryScreen extends StatelessWidget {
     newOrderRef
         .set(orderData)
         .then((_) {
-          // Save locally for history
           misPedidosLocales.add(
             LocalOrder(
               id: newOrderRef.key!,
@@ -351,6 +403,7 @@ class OrderSummaryScreen extends StatelessWidget {
               timestamp: currentTimestamp,
             ),
           );
+          saveLocalOrders();
 
           // Reset quantities on the previous screen
           onOrderConfirmed();
@@ -458,9 +511,14 @@ class OrderSummaryScreen extends StatelessWidget {
 }
 
 // Customer History Screen
-class CustomerHistoryScreen extends StatelessWidget {
+class CustomerHistoryScreen extends StatefulWidget {
   const CustomerHistoryScreen({super.key});
 
+  @override
+  State<CustomerHistoryScreen> createState() => _CustomerHistoryScreenState();
+}
+
+class _CustomerHistoryScreenState extends State<CustomerHistoryScreen> {
   @override
   Widget build(BuildContext context) {
     // Sort local orders newest first
@@ -517,20 +575,113 @@ class CustomerHistoryScreen extends StatelessWidget {
                             Row(
                               mainAxisAlignment: MainAxisAlignment.spaceBetween,
                               children: [
-                                Text(
-                                  'Pedido #${order.id.substring(order.id.length > 4 ? order.id.length - 4 : 0).toUpperCase()} - ${formatTime(order.timestamp)}',
-                                  style: const TextStyle(
-                                    fontSize: 18,
-                                    fontWeight: FontWeight.bold,
+                                Expanded(
+                                  child: Text(
+                                    'Pedido #${order.id.substring(order.id.length > 4 ? order.id.length - 4 : 0).toUpperCase()} - ${formatTime(order.timestamp)}',
+                                    style: const TextStyle(
+                                      fontSize: 18,
+                                      fontWeight: FontWeight.bold,
+                                    ),
                                   ),
                                 ),
-                                Chip(
-                                  label: Text(
-                                    statusText,
-                                    style: const TextStyle(color: Colors.white),
+                                const SizedBox(width: 8),
+                                  Row(
+                                    children: [
+                                      Chip(
+                                        label: Text(
+                                          statusText,
+                                          style: const TextStyle(
+                                            color: Colors.white,
+                                          ),
+                                        ),
+                                        backgroundColor: statusColor,
+                                      ),
+                                      if (status != 'preparing')
+                                        ElevatedButton.icon(
+                                          icon: const Icon(Icons.qr_code),
+                                          label: const Text('Pagar'),
+                                          style: ElevatedButton.styleFrom(
+                                            backgroundColor: Colors.green,
+                                            foregroundColor: Colors.white,
+                                          ),
+                                          onPressed: () {
+                                            showDialog(
+                                              context: context,
+                                              builder: (BuildContext context) {
+                                                return AlertDialog(
+                                                  title: const Text('Pagar Pedido'),
+                                                  content: Column(
+                                                    mainAxisSize: MainAxisSize.min,
+                                                    children: [
+                                                      const Text('Escanea con tu billetera virtual'),
+                                                      const SizedBox(height: 20),
+                                                      GestureDetector(
+                                                        onTap: () {
+                                                          Navigator.push(
+                                                            context,
+                                                            MaterialPageRoute(
+                                                              builder: (_) => Scaffold(
+                                                                backgroundColor: Colors.black,
+                                                                appBar: AppBar(
+                                                                  backgroundColor: Colors.black,
+                                                                  iconTheme: const IconThemeData(color: Colors.white),
+                                                                ),
+                                                                body: Center(
+                                                                  child: InteractiveViewer(
+                                                                    child: Image.asset('assets/qr.jpeg'),
+                                                                  ),
+                                                                ),
+                                                              ),
+                                                            ),
+                                                          );
+                                                        },
+                                                        child: Image.asset(
+                                                          'assets/qr.jpeg',
+                                                          width: 200,
+                                                          height: 200,
+                                                          fit: BoxFit.contain,
+                                                        ),
+                                                      ),
+                                                      const SizedBox(height: 20),
+                                                      Text(
+                                                        'Total: \$${order.total.toStringAsFixed(2)}',
+                                                        style: const TextStyle(
+                                                          fontSize: 24,
+                                                          fontWeight: FontWeight.bold,
+                                                        ),
+                                                      ),
+                                                    ],
+                                                  ),
+                                                  actions: [
+                                                    TextButton(
+                                                      onPressed: () => Navigator.of(context).pop(),
+                                                      child: const Text('Cerrar'),
+                                                    ),
+                                                  ],
+                                                );
+                                              },
+                                            );
+                                          },
+                                        ),
+                                      /*  IconButton(
+                                        icon: const Icon(Icons.delete, color: Colors.red),
+                                        onPressed: () async {
+                                          if (isActive) {
+                                            FirebaseDatabase.instance.ref('orders').child(order.id).remove();
+                                          }
+                                          setState(() {
+                                            misPedidosLocales.removeWhere((o) => o.id == order.id);
+                                          });
+                                          await saveLocalOrders();
+                                          if (context.mounted) {
+                                            ScaffoldMessenger.of(context).showSnackBar(
+                                              const SnackBar(content: Text('Pedido eliminado')),
+                                            );
+                                          }
+                                        },
+                                      ), */
+                                    ],
                                   ),
-                                  backgroundColor: statusColor,
-                                ),
                               ],
                             ),
                             const Divider(),
@@ -585,6 +736,31 @@ class ChefScreen extends StatefulWidget {
 
 class _ChefScreenState extends State<ChefScreen> {
   final DatabaseReference _ordersRef = FirebaseDatabase.instance.ref('orders');
+  StreamSubscription<DatabaseEvent>? _newOrderSubscription;
+
+  @override
+  void initState() {
+    super.initState();
+    final startTime = DateTime.now().millisecondsSinceEpoch;
+
+    _newOrderSubscription = _ordersRef.onChildAdded.listen((event) {
+      if (event.snapshot.value != null) {
+        final data = event.snapshot.value as Map<dynamic, dynamic>;
+        final timestamp = data['timestamp'] as int? ?? 0;
+
+        // Si el pedido fue creado después de abrir la pantalla
+        if (timestamp >= startTime) {
+          FlutterRingtonePlayer().playNotification();
+        }
+      }
+    });
+  }
+
+  @override
+  void dispose() {
+    _newOrderSubscription?.cancel();
+    super.dispose();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -654,33 +830,103 @@ class _ChefScreenState extends State<ChefScreen> {
                                     ),
                                     tooltip: 'Avisar que está listo',
                                     onPressed: () {
-                                      _ordersRef.child(orderId).update({
-                                        'status': 'ready',
-                                      });
-                                      ScaffoldMessenger.of(
-                                        context,
-                                      ).showSnackBar(
-                                        const SnackBar(
-                                          content: Text(
-                                            'Notificado al cliente',
-                                          ),
-                                        ),
+                                      showDialog(
+                                        context: context,
+                                        builder: (BuildContext context) {
+                                          return AlertDialog(
+                                            title: const Text(
+                                              'Confirmar estado',
+                                            ),
+                                            content: const Text(
+                                              '¿Estás seguro de que este pedido está listo?',
+                                            ),
+                                            actions: [
+                                              TextButton(
+                                                onPressed: () =>
+                                                    Navigator.of(context).pop(),
+                                                child: const Text('Cancelar'),
+                                              ),
+                                              TextButton(
+                                                onPressed: () {
+                                                  _ordersRef
+                                                      .child(orderId)
+                                                      .update({
+                                                        'status': 'ready',
+                                                      });
+                                                  Navigator.of(context).pop();
+                                                  ScaffoldMessenger.of(
+                                                    context,
+                                                  ).showSnackBar(
+                                                    const SnackBar(
+                                                      content: Text(
+                                                        'Notificado al cliente',
+                                                      ),
+                                                    ),
+                                                  );
+                                                },
+                                                child: const Text(
+                                                  'Confirmar',
+                                                  style: TextStyle(
+                                                    color: Colors.blue,
+                                                  ),
+                                                ),
+                                              ),
+                                            ],
+                                          );
+                                        },
                                       );
                                     },
                                   ),
                                 IconButton(
                                   icon: const Icon(
-                                    Icons.check_circle,
-                                    color: Colors.green,
+                                    Icons.delete,
+                                    color: Colors.red,
                                     size: 30,
                                   ),
-                                  tooltip: 'Finalizar y eliminar',
+                                  tooltip: 'Eliminar pedido',
                                   onPressed: () {
-                                    _ordersRef.child(orderId).remove();
-                                    ScaffoldMessenger.of(context).showSnackBar(
-                                      const SnackBar(
-                                        content: Text('Pedido completado'),
-                                      ),
+                                    showDialog(
+                                      context: context,
+                                      builder: (BuildContext context) {
+                                        return AlertDialog(
+                                          title: const Text(
+                                            'Confirmar eliminación',
+                                          ),
+                                          content: const Text(
+                                            '¿Estás seguro de que deseas eliminar este pedido?',
+                                          ),
+                                          actions: [
+                                            TextButton(
+                                              onPressed: () =>
+                                                  Navigator.of(context).pop(),
+                                              child: const Text('Cancelar'),
+                                            ),
+                                            TextButton(
+                                              onPressed: () {
+                                                _ordersRef
+                                                    .child(orderId)
+                                                    .remove();
+                                                Navigator.of(context).pop();
+                                                ScaffoldMessenger.of(
+                                                  context,
+                                                ).showSnackBar(
+                                                  const SnackBar(
+                                                    content: Text(
+                                                      'Pedido eliminado',
+                                                    ),
+                                                  ),
+                                                );
+                                              },
+                                              child: const Text(
+                                                'Eliminar',
+                                                style: TextStyle(
+                                                  color: Colors.red,
+                                                ),
+                                              ),
+                                            ),
+                                          ],
+                                        );
+                                      },
                                     );
                                   },
                                 ),
