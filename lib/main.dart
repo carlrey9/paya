@@ -146,11 +146,7 @@ class UserSelectionScreen extends StatelessWidget {
             child: Column(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
-                Icon(
-                  Icons.restaurant_outlined,
-                  size: 64,
-                  color: rustColor,
-                ),
+                Icon(Icons.restaurant_outlined, size: 64, color: rustColor),
                 const SizedBox(height: 24),
                 Text(
                   'Savor Atelier',
@@ -189,9 +185,7 @@ class UserSelectionScreen extends StatelessWidget {
                   icon: Icons.outdoor_grill_outlined,
                   onTap: () => Navigator.push(
                     context,
-                    MaterialPageRoute(
-                      builder: (context) => const ChefScreen(),
-                    ),
+                    MaterialPageRoute(builder: (context) => const ChefScreen()),
                   ),
                 ),
               ],
@@ -202,7 +196,12 @@ class UserSelectionScreen extends StatelessWidget {
     );
   }
 
-  Widget _buildRoleButton(BuildContext context, {required String title, required IconData icon, required VoidCallback onTap}) {
+  Widget _buildRoleButton(
+    BuildContext context, {
+    required String title,
+    required IconData icon,
+    required VoidCallback onTap,
+  }) {
     const Color rustColor = Color(0xFFA03215);
     return InkWell(
       onTap: onTap,
@@ -327,10 +326,10 @@ class _CustomerMenuScreenState extends State<CustomerMenuScreen> {
       appBar: AppBar(
         backgroundColor: Colors.transparent,
         elevation: 0,
-        leading: IconButton(
+        /* leading: IconButton(
           icon: const Icon(Icons.arrow_back, color: rustColor),
           onPressed: () => Navigator.of(context).pop(),
-        ),
+        ), */
         title: Text(
           'Menú',
           style: GoogleFonts.playfairDisplay(
@@ -346,7 +345,10 @@ class _CustomerMenuScreenState extends State<CustomerMenuScreen> {
             icon: Badge(
               isLabelVisible: misPedidosLocales.isNotEmpty,
               backgroundColor: rustColor,
-              label: Text('${misPedidosLocales.length}', style: const TextStyle(color: Colors.white)),
+              label: Text(
+                '${misPedidosLocales.length}',
+                style: const TextStyle(color: Colors.white),
+              ),
               child: const Icon(Icons.receipt_long, color: rustColor),
             ),
             tooltip: 'Mis Pedidos',
@@ -384,11 +386,7 @@ class _CustomerMenuScreenState extends State<CustomerMenuScreen> {
                     color: Colors.white,
                     borderRadius: BorderRadius.circular(12),
                   ),
-                  child: Icon(
-                    dish.icon,
-                    size: 28,
-                    color: rustColor,
-                  ),
+                  child: Icon(dish.icon, size: 28, color: rustColor),
                 ),
                 const SizedBox(width: 16),
                 Expanded(
@@ -416,7 +414,10 @@ class _CustomerMenuScreenState extends State<CustomerMenuScreen> {
                   ),
                 ),
                 Container(
-                  padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 8,
+                    vertical: 4,
+                  ),
                   decoration: BoxDecoration(
                     color: Colors.white,
                     borderRadius: BorderRadius.circular(20),
@@ -433,7 +434,11 @@ class _CustomerMenuScreenState extends State<CustomerMenuScreen> {
                             });
                           }
                         },
-                        child: const Icon(Icons.remove, size: 20, color: Colors.black54),
+                        child: const Icon(
+                          Icons.remove,
+                          size: 20,
+                          color: Colors.black54,
+                        ),
                       ),
                       SizedBox(
                         width: 32,
@@ -454,7 +459,11 @@ class _CustomerMenuScreenState extends State<CustomerMenuScreen> {
                             quantities[dish.id] = quantity + 1;
                           });
                         },
-                        child: const Icon(Icons.add, size: 20, color: rustColor),
+                        child: const Icon(
+                          Icons.add,
+                          size: 20,
+                          color: rustColor,
+                        ),
                       ),
                     ],
                   ),
@@ -581,7 +590,10 @@ class OrderSummaryScreen extends StatelessWidget {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 24.0, vertical: 16.0),
+            padding: const EdgeInsets.symmetric(
+              horizontal: 24.0,
+              vertical: 16.0,
+            ),
             child: Text(
               'Revisa tu pedido antes\nde enviarlo',
               style: GoogleFonts.playfairDisplay(
@@ -895,12 +907,25 @@ class _CustomerHistoryScreenState extends State<CustomerHistoryScreen> {
                           context: context,
                           builder: (BuildContext context) {
                             return AlertDialog(
-                              title: const Text('Pagar Pedido'),
+                              backgroundColor: const Color(0xFFFCF9F5),
+                              shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(20),
+                              ),
+                              title: Text(
+                                'Pagar Pedido',
+                                style: GoogleFonts.playfairDisplay(
+                                  fontWeight: FontWeight.w700,
+                                  color: const Color(0xFFA03215),
+                                ),
+                              ),
                               content: Column(
                                 mainAxisSize: MainAxisSize.min,
                                 children: [
-                                  const Text(
+                                  Text(
                                     'Escanea con tu billetera virtual',
+                                    style: GoogleFonts.inter(
+                                      color: Colors.black87,
+                                    ),
                                   ),
                                   const SizedBox(height: 20),
                                   GestureDetector(
@@ -927,19 +952,23 @@ class _CustomerHistoryScreenState extends State<CustomerHistoryScreen> {
                                         ),
                                       );
                                     },
-                                    child: Image.asset(
-                                      'assets/qr.jpeg',
-                                      width: 200,
-                                      height: 200,
-                                      fit: BoxFit.contain,
+                                    child: ClipRRect(
+                                      borderRadius: BorderRadius.circular(12),
+                                      child: Image.asset(
+                                        'assets/qr.jpeg',
+                                        width: 200,
+                                        height: 200,
+                                        fit: BoxFit.contain,
+                                      ),
                                     ),
                                   ),
                                   const SizedBox(height: 20),
                                   Text(
                                     'Total: \$${order.total.toStringAsFixed(2)}',
-                                    style: const TextStyle(
+                                    style: GoogleFonts.playfairDisplay(
                                       fontSize: 24,
                                       fontWeight: FontWeight.bold,
+                                      color: Colors.black87,
                                     ),
                                   ),
                                 ],
@@ -947,7 +976,13 @@ class _CustomerHistoryScreenState extends State<CustomerHistoryScreen> {
                               actions: [
                                 TextButton(
                                   onPressed: () => Navigator.of(context).pop(),
-                                  child: const Text('Cerrar'),
+                                  child: Text(
+                                    'Cerrar',
+                                    style: GoogleFonts.inter(
+                                      color: Colors.black54,
+                                      fontWeight: FontWeight.bold,
+                                    ),
+                                  ),
                                 ),
                               ],
                             );
@@ -1124,7 +1159,7 @@ class _CustomerHistoryScreenState extends State<CustomerHistoryScreen> {
           ),
         ],
       ),
-      bottomNavigationBar: SafeArea(
+      /*  bottomNavigationBar: SafeArea(
         child: Container(
           margin: const EdgeInsets.only(left: 32, right: 32, bottom: 24),
           padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 24),
@@ -1148,7 +1183,7 @@ class _CustomerHistoryScreenState extends State<CustomerHistoryScreen> {
             ],
           ),
         ),
-      ),
+      ), */
     );
   }
 
@@ -1230,10 +1265,10 @@ class _ChefScreenState extends State<ChefScreen> {
       appBar: AppBar(
         backgroundColor: Colors.transparent,
         elevation: 0,
-        leading: IconButton(
+        /*  leading: IconButton(
           icon: const Icon(Icons.arrow_back, color: rustColor),
           onPressed: () => Navigator.of(context).pop(),
-        ),
+        ), */
         title: Text(
           'Consola del Chef',
           style: GoogleFonts.playfairDisplay(
@@ -1249,7 +1284,9 @@ class _ChefScreenState extends State<ChefScreen> {
         stream: _ordersRef.onValue,
         builder: (context, snapshot) {
           if (snapshot.connectionState == ConnectionState.waiting) {
-            return const Center(child: CircularProgressIndicator(color: rustColor));
+            return const Center(
+              child: CircularProgressIndicator(color: rustColor),
+            );
           }
           if (snapshot.hasError) {
             return Center(
@@ -1276,7 +1313,10 @@ class _ChefScreenState extends State<ChefScreen> {
             );
 
             return ListView.builder(
-              padding: const EdgeInsets.symmetric(horizontal: 24.0, vertical: 16.0),
+              padding: const EdgeInsets.symmetric(
+                horizontal: 24.0,
+                vertical: 16.0,
+              ),
               itemCount: ordersList.length,
               itemBuilder: (context, index) {
                 final order = ordersList[index];
@@ -1290,7 +1330,7 @@ class _ChefScreenState extends State<ChefScreen> {
                 Color statusColor;
                 Color statusTextColor;
                 bool isPreparing = false;
-                
+
                 if (status == 'preparing') {
                   statusText = 'En preparación';
                   statusColor = const Color(0xFFF5E0D8);
@@ -1349,7 +1389,10 @@ class _ChefScreenState extends State<ChefScreen> {
                             crossAxisAlignment: CrossAxisAlignment.end,
                             children: [
                               Container(
-                                padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+                                padding: const EdgeInsets.symmetric(
+                                  horizontal: 12,
+                                  vertical: 6,
+                                ),
                                 decoration: BoxDecoration(
                                   color: statusColor,
                                   borderRadius: BorderRadius.circular(20),
@@ -1390,7 +1433,10 @@ class _ChefScreenState extends State<ChefScreen> {
                                   color: Colors.white,
                                   borderRadius: BorderRadius.circular(12),
                                 ),
-                                child: const Icon(Icons.restaurant, color: rustColor),
+                                child: const Icon(
+                                  Icons.restaurant,
+                                  color: rustColor,
+                                ),
                               ),
                               const SizedBox(width: 16),
                               Expanded(
@@ -1440,26 +1486,58 @@ class _ChefScreenState extends State<ChefScreen> {
                                   context: context,
                                   builder: (BuildContext context) {
                                     return AlertDialog(
-                                      title: const Text('Confirmar estado'),
-                                      content: const Text('¿Estás seguro de que este pedido está listo?'),
+                                      backgroundColor: const Color(0xFFFCF9F5),
+                                      shape: RoundedRectangleBorder(
+                                        borderRadius: BorderRadius.circular(20),
+                                      ),
+                                      title: Text(
+                                        'Confirmar estado',
+                                        style: GoogleFonts.playfairDisplay(
+                                          fontWeight: FontWeight.w700,
+                                          color: rustColor,
+                                        ),
+                                      ),
+                                      content: Text(
+                                        '¿Estás seguro de que este pedido está listo?',
+                                        style: GoogleFonts.inter(
+                                          color: Colors.black87,
+                                        ),
+                                      ),
                                       actions: [
                                         TextButton(
-                                          onPressed: () => Navigator.of(context).pop(),
-                                          child: const Text('Cancelar'),
+                                          onPressed: () =>
+                                              Navigator.of(context).pop(),
+                                          child: Text(
+                                            'Cancelar',
+                                            style: GoogleFonts.inter(
+                                              color: Colors.black54,
+                                            ),
+                                          ),
                                         ),
                                         TextButton(
                                           onPressed: () {
-                                            _ordersRef.child(orderId).update({'status': 'ready'});
+                                            _ordersRef.child(orderId).update({
+                                              'status': 'ready',
+                                            });
                                             Navigator.of(context).pop();
                                           },
-                                          child: const Text('Confirmar', style: TextStyle(color: Colors.blue)),
+                                          child: Text(
+                                            'Confirmar',
+                                            style: GoogleFonts.inter(
+                                              color: const Color(0xFF007BFF),
+                                              fontWeight: FontWeight.bold,
+                                            ),
+                                          ),
                                         ),
                                       ],
                                     );
                                   },
                                 );
                               },
-                              icon: const Icon(Icons.check_circle_outline, size: 18),
+                              icon: const Icon(
+                                Icons.check_circle_outline,
+                                size: 18,
+                              ),
                               label: Text(
                                 'MARCAR LISTO',
                                 style: GoogleFonts.inter(
@@ -1484,19 +1562,46 @@ class _ChefScreenState extends State<ChefScreen> {
                                 context: context,
                                 builder: (BuildContext context) {
                                   return AlertDialog(
-                                    title: const Text('Confirmar eliminación'),
-                                    content: const Text('¿Estás seguro de que deseas eliminar este pedido?'),
+                                    backgroundColor: const Color(0xFFFCF9F5),
+                                    shape: RoundedRectangleBorder(
+                                      borderRadius: BorderRadius.circular(20),
+                                    ),
+                                    title: Text(
+                                      'Confirmar eliminación',
+                                      style: GoogleFonts.playfairDisplay(
+                                        fontWeight: FontWeight.w700,
+                                        color: rustColor,
+                                      ),
+                                    ),
+                                    content: Text(
+                                      '¿Estás seguro de que deseas eliminar este pedido?',
+                                      style: GoogleFonts.inter(
+                                        color: Colors.black87,
+                                      ),
+                                    ),
                                     actions: [
                                       TextButton(
-                                        onPressed: () => Navigator.of(context).pop(),
-                                        child: const Text('Cancelar'),
+                                        onPressed: () =>
+                                            Navigator.of(context).pop(),
+                                        child: Text(
+                                          'Cancelar',
+                                          style: GoogleFonts.inter(
+                                            color: Colors.black54,
+                                          ),
+                                        ),
                                       ),
                                       TextButton(
                                         onPressed: () {
                                           _ordersRef.child(orderId).remove();
                                           Navigator.of(context).pop();
                                         },
-                                        child: const Text('Eliminar', style: TextStyle(color: Colors.red)),
+                                        child: Text(
+                                          'Eliminar',
+                                          style: GoogleFonts.inter(
+                                            color: Colors.red,
+                                            fontWeight: FontWeight.bold,
+                                          ),
+                                        ),
                                       ),
                                     ],
                                   );
@@ -1525,10 +1630,7 @@ class _ChefScreenState extends State<ChefScreen> {
           return Center(
             child: Text(
               'No hay pedidos en curso',
-              style: GoogleFonts.inter(
-                fontSize: 16,
-                color: Colors.black54,
-              ),
+              style: GoogleFonts.inter(fontSize: 16, color: Colors.black54),
             ),
           );
         },
