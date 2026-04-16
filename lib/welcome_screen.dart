@@ -127,6 +127,45 @@ class _WelcomeScreenState extends State<WelcomeScreen>
                               letterSpacing: 0.5,
                             ),
                           ),
+                          const Spacer(),
+                          // ── 3-dot menu for staff ──
+                          PopupMenuButton<String>(
+                            icon: const Icon(
+                              Icons.more_vert,
+                              color: Colors.white70,
+                            ),
+                            color: const Color(0xFFFCF9F5),
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(14),
+                            ),
+                            onSelected: (value) {
+                              if (value == 'chef') {
+                                showChefAuthDialog(context);
+                              }
+                            },
+                            itemBuilder: (_) => [
+                              PopupMenuItem(
+                                value: 'chef',
+                                child: Row(
+                                  children: [
+                                    const Icon(
+                                      Icons.restaurant_menu,
+                                      color: Color(0xFFA03215),
+                                      size: 20,
+                                    ),
+                                    const SizedBox(width: 10),
+                                    Text(
+                                      'Consola del chef',
+                                      style: GoogleFonts.inter(
+                                        fontWeight: FontWeight.w600,
+                                        color: const Color(0xFFA03215),
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                              ),
+                            ],
+                          ),
                         ],
                       ),
                     ),

@@ -108,23 +108,10 @@ class _SplashScreenState extends State<SplashScreen>
 
     if (!mounted) return;
 
-    Widget nextScreen;
-    switch (currentUserRole) {
-      case UserType.customer:
-        nextScreen = const WelcomeScreen();
-        break;
-      case UserType.chef:
-        nextScreen = const ChefScreen();
-        break;
-      case UserType.selection:
-      default:
-        nextScreen = const UserSelectionScreen();
-        break;
-    }
-
     Navigator.of(context).pushReplacement(
       PageRouteBuilder(
-        pageBuilder: (context, animation, secondaryAnimation) => nextScreen,
+        pageBuilder: (context, animation, secondaryAnimation) =>
+            const WelcomeScreen(),
         transitionsBuilder: (context, animation, secondaryAnimation, child) {
           return FadeTransition(opacity: animation, child: child);
         },

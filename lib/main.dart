@@ -23,7 +23,7 @@ class RestaurantApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-      title: 'Savor Atelier',
+      title: 'Mesa Digital',
       debugShowCheckedModeBanner: false,
       theme: ThemeData(
         colorScheme: ColorScheme.fromSeed(seedColor: const Color(0xFFA03215)),
@@ -132,6 +132,268 @@ String formatCOP(double price) {
     buf.write(s[i]);
   }
   return '\$${buf.toString()}';
+}
+
+// Mapa global id → imagePath para lookup en la consola del chef
+const Map<String, String> dishImageMap = {
+  '1': 'assets/arepa.jpeg',
+  '2': 'assets/mute.jpeg',
+  '3': 'assets/carne.jpeg',
+  '4': 'assets/cabro.jpeg',
+  '5': 'assets/chicharron.jpeg',
+  '6': 'assets/pepitoria.jpeg',
+  '7': 'assets/gallina.jpeg',
+  '8': 'assets/ayaca.jpeg',
+  '9': 'assets/pepino.jpeg',
+  '10': 'assets/hormiga.jpeg',
+  'b1': 'assets/masato.jpeg',
+  'b2': 'assets/chicha.jpeg',
+  'b3': 'assets/guarapo.jpeg',
+  'b4': 'assets/panela.jpeg',
+  'b5': 'assets/mora.jpeg',
+  'b6': 'assets/lulo.jpeg',
+  'b7': 'assets/maracuya.jpeg',
+  'b8': 'assets/cafe.jpeg',
+  'b9': 'assets/coco.jpeg',
+  'b10': 'assets/te.jpeg',
+};
+
+// ── Chef auth dialog ──
+// Shows a PIN dialog. If the user enters '1234' it navigates to ChefScreen.
+void showChefAuthDialog(BuildContext context) {
+  const String _correctPin = '1234';
+  const Color rustColor = Color(0xFFA03215);
+  const Color bgColor = Color(0xFFFCF9F5);
+  const Color cardColor = Color(0xFFF6EFE8);
+
+  final pinController = TextEditingController();
+  String? errorText;
+
+  showDialog(
+    context: context,
+    barrierDismissible: true,
+    builder: (ctx) {
+      return StatefulBuilder(
+        builder: (ctx, setDialogState) {
+          return Dialog(
+            backgroundColor: Colors.transparent,
+            insetPadding: const EdgeInsets.symmetric(
+              horizontal: 32,
+              vertical: 80,
+            ),
+            child: ClipRRect(
+              borderRadius: BorderRadius.circular(24),
+              child: Container(
+                color: bgColor,
+                child: SingleChildScrollView(
+                  child: Column(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      // ── Header ──
+                      Container(
+                        width: double.infinity,
+                        padding: const EdgeInsets.symmetric(vertical: 20),
+                        decoration: const BoxDecoration(
+                          gradient: LinearGradient(
+                            begin: Alignment.topLeft,
+                            end: Alignment.bottomRight,
+                            colors: [
+                              Color(0xFF7B1D08),
+                              Color(0xFFA03215),
+                              Color(0xFFD4521F),
+                            ],
+                          ),
+                        ),
+                        child: Column(
+                          children: [
+                            Container(
+                              width: 64,
+                              height: 64,
+                              decoration: BoxDecoration(
+                                shape: BoxShape.circle,
+                                color: Colors.white.withOpacity(0.15),
+                                border: Border.all(
+                                  color: Colors.white.withOpacity(0.3),
+                                  width: 1.5,
+                                ),
+                              ),
+                              child: const Icon(
+                                Icons.lock_outline_rounded,
+                                size: 32,
+                                color: Colors.white,
+                              ),
+                            ),
+                            const SizedBox(height: 12),
+                            Text(
+                              'Consola del Chef',
+                              style: GoogleFonts.playfairDisplay(
+                                fontSize: 20,
+                                fontWeight: FontWeight.w700,
+                                color: Colors.white,
+                              ),
+                            ),
+                            const SizedBox(height: 4),
+                            Text(
+                              'Ingresa el código de acceso',
+                              style: GoogleFonts.inter(
+                                fontSize: 12,
+                                color: Colors.white70,
+                                letterSpacing: 0.3,
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+
+                      // ── PIN field ──
+                      Padding(
+                        padding: const EdgeInsets.fromLTRB(28, 28, 28, 8),
+                        child: Column(
+                          children: [
+                            Container(
+                              decoration: BoxDecoration(
+                                color: cardColor,
+                                borderRadius: BorderRadius.circular(14),
+                                border: Border.all(
+                                  color: errorText != null
+                                      ? Colors.red.shade300
+                                      : rustColor.withOpacity(0.2),
+                                ),
+                              ),
+                              child: TextField(
+                                controller: pinController,
+                                keyboardType: TextInputType.number,
+                                obscureText: true,
+                                maxLength: 4,
+                                textAlign: TextAlign.center,
+                                style: GoogleFonts.playfairDisplay(
+                                  fontSize: 28,
+                                  fontWeight: FontWeight.w700,
+                                  color: rustColor,
+                                  letterSpacing: 16,
+                                ),
+                                decoration: InputDecoration(
+                                  counterText: '',
+                                  border: InputBorder.none,
+                                  hintText: '• • • •',
+                                  hintStyle: GoogleFonts.inter(
+                                    fontSize: 18,
+                                    color: Colors.black26,
+                                    letterSpacing: 12,
+                                  ),
+                                  contentPadding: const EdgeInsets.symmetric(
+                                    vertical: 16,
+                                    horizontal: 16,
+                                  ),
+                                ),
+                                onChanged: (_) {
+                                  if (errorText != null) {
+                                    setDialogState(() => errorText = null);
+                                  }
+                                },
+                              ),
+                            ),
+                            if (errorText != null) ...[
+                              const SizedBox(height: 8),
+                              Row(
+                                children: [
+                                  const Icon(
+                                    Icons.error_outline,
+                                    size: 14,
+                                    color: Colors.red,
+                                  ),
+                                  const SizedBox(width: 4),
+                                  Text(
+                                    errorText!,
+                                    style: GoogleFonts.inter(
+                                      fontSize: 12,
+                                      color: Colors.red,
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            ],
+                          ],
+                        ),
+                      ),
+
+                      // ── Buttons ──
+                      Padding(
+                        padding: const EdgeInsets.fromLTRB(28, 8, 28, 24),
+                        child: Row(
+                          children: [
+                            Expanded(
+                              child: TextButton(
+                                onPressed: () => Navigator.of(ctx).pop(),
+                                style: TextButton.styleFrom(
+                                  foregroundColor: Colors.black45,
+                                  padding: const EdgeInsets.symmetric(
+                                    vertical: 14,
+                                  ),
+                                ),
+                                child: Text(
+                                  'CANCELAR',
+                                  style: GoogleFonts.inter(
+                                    fontSize: 13,
+                                    fontWeight: FontWeight.w600,
+                                    letterSpacing: 0.8,
+                                  ),
+                                ),
+                              ),
+                            ),
+                            const SizedBox(width: 12),
+                            Expanded(
+                              flex: 2,
+                              child: ElevatedButton(
+                                style: ElevatedButton.styleFrom(
+                                  backgroundColor: rustColor,
+                                  foregroundColor: Colors.white,
+                                  elevation: 0,
+                                  shape: RoundedRectangleBorder(
+                                    borderRadius: BorderRadius.circular(12),
+                                  ),
+                                  padding: const EdgeInsets.symmetric(
+                                    vertical: 14,
+                                  ),
+                                ),
+                                onPressed: () {
+                                  if (pinController.text == _correctPin) {
+                                    Navigator.of(ctx).pop();
+                                    Navigator.of(context).push(
+                                      MaterialPageRoute(
+                                        builder: (_) => const ChefScreen(),
+                                      ),
+                                    );
+                                  } else {
+                                    setDialogState(
+                                      () => errorText = 'Código incorrecto',
+                                    );
+                                    pinController.clear();
+                                  }
+                                },
+                                child: Text(
+                                  'INGRESAR',
+                                  style: GoogleFonts.inter(
+                                    fontSize: 13,
+                                    fontWeight: FontWeight.w700,
+                                    letterSpacing: 0.8,
+                                  ),
+                                ),
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              ),
+            ),
+          );
+        },
+      );
+    },
+  );
 }
 
 // User Selection Screen
@@ -1013,6 +1275,41 @@ class _CustomerMenuScreenState extends State<CustomerMenuScreen> {
               );
             },
           ),
+          // ── 3-dot staff menu ──
+          PopupMenuButton<String>(
+            icon: const Icon(Icons.more_vert, color: rustColor),
+            color: const Color(0xFFFCF9F5),
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(14),
+            ),
+            onSelected: (value) {
+              if (value == 'chef') {
+                showChefAuthDialog(context);
+              }
+            },
+            itemBuilder: (_) => [
+              PopupMenuItem(
+                value: 'chef',
+                child: Row(
+                  children: [
+                    const Icon(
+                      Icons.restaurant_menu,
+                      color: rustColor,
+                      size: 20,
+                    ),
+                    const SizedBox(width: 10),
+                    Text(
+                      'Chef',
+                      style: GoogleFonts.inter(
+                        fontWeight: FontWeight.w600,
+                        color: rustColor,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ],
+          ),
         ],
       ),
       body: Column(
@@ -1140,7 +1437,7 @@ class _CustomerMenuScreenState extends State<CustomerMenuScreen> {
 }
 
 // Order Summary Screen (Customer reviews their order before submitting)
-class OrderSummaryScreen extends StatelessWidget {
+class OrderSummaryScreen extends StatefulWidget {
   final List<OrderItem> orderedItems;
   final double totalPrice;
   final VoidCallback onOrderConfirmed;
@@ -1152,11 +1449,18 @@ class OrderSummaryScreen extends StatelessWidget {
     required this.onOrderConfirmed,
   });
 
+  @override
+  State<OrderSummaryScreen> createState() => _OrderSummaryScreenState();
+}
+
+class _OrderSummaryScreenState extends State<OrderSummaryScreen> {
+  int _selectedTable = 1;
+
   void _submitOrder(BuildContext context) {
     final dbRef = FirebaseDatabase.instance.ref('orders');
 
     final int currentTimestamp = DateTime.now().millisecondsSinceEpoch;
-    final itemsList = orderedItems
+    final itemsList = widget.orderedItems
         .map(
           (e) => {
             'id': e.dish.id,
@@ -1169,9 +1473,10 @@ class OrderSummaryScreen extends StatelessWidget {
 
     final orderData = {
       'timestamp': currentTimestamp,
-      'totalPrice': totalPrice,
+      'totalPrice': widget.totalPrice,
       'items': itemsList,
       'status': 'preparing',
+      'tableNumber': _selectedTable,
     };
 
     final newOrderRef = dbRef.push();
@@ -1182,7 +1487,7 @@ class OrderSummaryScreen extends StatelessWidget {
           misPedidosLocales.add(
             LocalOrder(
               id: newOrderRef.key!,
-              total: totalPrice,
+              total: widget.totalPrice,
               items: itemsList,
               timestamp: currentTimestamp,
             ),
@@ -1190,7 +1495,7 @@ class OrderSummaryScreen extends StatelessWidget {
           saveLocalOrders();
 
           // Reset quantities on the previous screen
-          onOrderConfirmed();
+          widget.onOrderConfirmed();
 
           // Navigate to History screen, replacing the summary
           Navigator.pushReplacement(
@@ -1254,9 +1559,9 @@ class OrderSummaryScreen extends StatelessWidget {
           Expanded(
             child: ListView.builder(
               padding: const EdgeInsets.symmetric(horizontal: 24.0),
-              itemCount: orderedItems.length,
+              itemCount: widget.orderedItems.length,
               itemBuilder: (context, index) {
-                final item = orderedItems[index];
+                final item = widget.orderedItems[index];
                 return Padding(
                   padding: const EdgeInsets.only(bottom: 16.0),
                   child: Row(
@@ -1350,7 +1655,7 @@ class OrderSummaryScreen extends StatelessWidget {
                         ),
                       ),
                       Text(
-                        formatCOP(totalPrice),
+                        formatCOP(widget.totalPrice),
                         style: GoogleFonts.playfairDisplay(
                           fontSize: 28,
                           fontWeight: FontWeight.bold,
@@ -1358,6 +1663,84 @@ class OrderSummaryScreen extends StatelessWidget {
                         ),
                       ),
                     ],
+                  ),
+                  const SizedBox(height: 20),
+                  // ── Table dropdown ──
+                  Container(
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 16,
+                      vertical: 8,
+                    ),
+                    decoration: BoxDecoration(
+                      color: const Color(0xFFF6EFE8),
+                      borderRadius: BorderRadius.circular(16),
+                      border: Border.all(
+                        color: const Color(0xFFA03215).withOpacity(0.2),
+                      ),
+                    ),
+                    child: Row(
+                      crossAxisAlignment: CrossAxisAlignment.center,
+                      children: [
+                        Container(
+                          padding: const EdgeInsets.all(8),
+                          decoration: BoxDecoration(
+                            color: const Color(0xFFA03215).withOpacity(0.1),
+                            borderRadius: BorderRadius.circular(10),
+                          ),
+                          child: const Icon(
+                            Icons.table_restaurant_outlined,
+                            color: Color(0xFFA03215),
+                            size: 20,
+                          ),
+                        ),
+                        const SizedBox(width: 12),
+                        Expanded(
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Text(
+                                'NÚMERO DE MESA',
+                                style: GoogleFonts.inter(
+                                  fontSize: 10,
+                                  fontWeight: FontWeight.w700,
+                                  letterSpacing: 1.2,
+                                  color: Colors.black38,
+                                ),
+                              ),
+                              DropdownButtonHideUnderline(
+                                child: DropdownButton<int>(
+                                  value: _selectedTable,
+                                  isExpanded: true,
+                                  isDense: true,
+                                  icon: const Icon(
+                                    Icons.keyboard_arrow_down_rounded,
+                                    color: Color(0xFFA03215),
+                                  ),
+                                  style: GoogleFonts.playfairDisplay(
+                                    fontSize: 18,
+                                    fontWeight: FontWeight.w700,
+                                    color: const Color(0xFFA03215),
+                                  ),
+                                  items: List.generate(20, (i) => i + 1)
+                                      .map(
+                                        (n) => DropdownMenuItem(
+                                          value: n,
+                                          child: Text('Mesa $n'),
+                                        ),
+                                      )
+                                      .toList(),
+                                  onChanged: (val) {
+                                    if (val != null) {
+                                      setState(() => _selectedTable = val);
+                                    }
+                                  },
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+                      ],
+                    ),
                   ),
                   const SizedBox(height: 24),
                   SizedBox(
@@ -1924,7 +2307,7 @@ class _ChefScreenState extends State<ChefScreen> {
           onPressed: () => Navigator.of(context).pop(),
         ), */
         title: Text(
-          'Consola del Chef',
+          'Chef',
           style: GoogleFonts.playfairDisplay(
             color: rustColor,
             fontSize: 24,
@@ -1975,10 +2358,10 @@ class _ChefScreenState extends State<ChefScreen> {
               itemBuilder: (context, index) {
                 final order = ordersList[index];
                 final String orderId = order['key'];
-                final double total = (order['totalPrice'] ?? 0).toDouble();
                 final List items = order['items'] ?? [];
                 final int timestamp = (order['timestamp'] ?? 0) as int;
                 final String status = order['status'] ?? 'preparing';
+                final int tableNumber = (order['tableNumber'] ?? 0) as int;
 
                 String statusText;
                 Color statusColor;
@@ -2039,6 +2422,7 @@ class _ChefScreenState extends State<ChefScreen> {
                               ],
                             ),
                           ),
+                          // Right: Status badge + Table badge
                           Column(
                             crossAxisAlignment: CrossAxisAlignment.end,
                             children: [
@@ -2061,15 +2445,47 @@ class _ChefScreenState extends State<ChefScreen> {
                                   ),
                                 ),
                               ),
-                              const SizedBox(height: 6),
-                              Text(
-                                'Hoy, ${formatTime(timestamp)}',
-                                style: GoogleFonts.inter(
-                                  fontSize: 12,
-                                  color: Colors.black54,
+                              if (tableNumber > 0) ...[
+                                const SizedBox(height: 8),
+                                Container(
+                                  padding: const EdgeInsets.symmetric(
+                                    horizontal: 12,
+                                    vertical: 6,
+                                  ),
+                                  decoration: BoxDecoration(
+                                    color: rustColor,
+                                    borderRadius: BorderRadius.circular(20),
+                                  ),
+                                  child: Row(
+                                    mainAxisSize: MainAxisSize.min,
+                                    children: [
+                                      const Icon(
+                                        Icons.table_restaurant_outlined,
+                                        size: 12,
+                                        color: Colors.white,
+                                      ),
+                                      const SizedBox(width: 4),
+                                      Text(
+                                        'Mesa $tableNumber',
+                                        style: GoogleFonts.inter(
+                                          fontSize: 11,
+                                          fontWeight: FontWeight.w700,
+                                          color: Colors.white,
+                                        ),
+                                      ),
+                                    ],
+                                  ),
                                 ),
-                              ),
+                              ],
                             ],
+                          ),
+                          // Time
+                          Text(
+                            'Hoy, ${formatTime(timestamp)}',
+                            style: GoogleFonts.inter(
+                              fontSize: 12,
+                              color: Colors.black54,
+                            ),
                           ),
                         ],
                       ),
@@ -2080,17 +2496,29 @@ class _ChefScreenState extends State<ChefScreen> {
                           child: Row(
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
-                              Container(
-                                width: 48,
-                                height: 48,
-                                decoration: BoxDecoration(
-                                  color: Colors.white,
-                                  borderRadius: BorderRadius.circular(12),
-                                ),
-                                child: const Icon(
-                                  Icons.restaurant,
-                                  color: rustColor,
-                                ),
+                              ClipRRect(
+                                borderRadius: BorderRadius.circular(12),
+                                child: () {
+                                  final imgPath =
+                                      dishImageMap[item['id']?.toString()];
+                                  if (imgPath != null) {
+                                    return Image.asset(
+                                      imgPath,
+                                      width: 56,
+                                      height: 56,
+                                      fit: BoxFit.cover,
+                                    );
+                                  }
+                                  return Container(
+                                    width: 56,
+                                    height: 56,
+                                    color: Colors.white,
+                                    child: const Icon(
+                                      Icons.restaurant,
+                                      color: rustColor,
+                                    ),
+                                  );
+                                }(),
                               ),
                               const SizedBox(width: 16),
                               Expanded(
