@@ -1285,6 +1285,8 @@ class _CustomerMenuScreenState extends State<CustomerMenuScreen> {
             onSelected: (value) {
               if (value == 'chef') {
                 showChefAuthDialog(context);
+              } else if (value == 'admin') {
+                showAdminAuthDialog(context);
               }
             },
             itemBuilder: (_) => [
@@ -1303,6 +1305,26 @@ class _CustomerMenuScreenState extends State<CustomerMenuScreen> {
                       style: GoogleFonts.inter(
                         fontWeight: FontWeight.w600,
                         color: rustColor,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+              PopupMenuItem(
+                value: 'admin',
+                child: Row(
+                  children: [
+                    const Icon(
+                      Icons.admin_panel_settings_outlined,
+                      color: Color(0xFF0F3460),
+                      size: 20,
+                    ),
+                    const SizedBox(width: 10),
+                    Text(
+                      'Admin',
+                      style: GoogleFonts.inter(
+                        fontWeight: FontWeight.w600,
+                        color: Color(0xFF0F3460),
                       ),
                     ),
                   ],
@@ -2717,6 +2739,1143 @@ class _ChefScreenState extends State<ChefScreen> {
           );
         },
       ),
+    );
+  }
+}
+
+// ── Admin auth dialog (PIN: 8888) ──
+void showAdminAuthDialog(BuildContext context) {
+  const String correctPin = '8888';
+  const Color rustColor = Color(0xFFA03215);
+  const Color bgColor = Color(0xFFFCF9F5);
+  const Color cardColor = Color(0xFFF6EFE8);
+
+  final pinController = TextEditingController();
+  String? errorText;
+
+  showDialog(
+    context: context,
+    barrierDismissible: true,
+    builder: (ctx) {
+      return StatefulBuilder(
+        builder: (ctx, setDialogState) {
+          return Dialog(
+            backgroundColor: Colors.transparent,
+            insetPadding: const EdgeInsets.symmetric(
+              horizontal: 32,
+              vertical: 80,
+            ),
+            child: ClipRRect(
+              borderRadius: BorderRadius.circular(24),
+              child: Container(
+                color: bgColor,
+                child: SingleChildScrollView(
+                  child: Column(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      // Header
+                      Container(
+                        width: double.infinity,
+                        padding: const EdgeInsets.symmetric(vertical: 24),
+                        decoration: const BoxDecoration(
+                          gradient: LinearGradient(
+                            begin: Alignment.topLeft,
+                            end: Alignment.bottomRight,
+                            colors: [
+                              Color(0xFF1A1A2E),
+                              Color(0xFF16213E),
+                              Color(0xFF0F3460),
+                            ],
+                          ),
+                        ),
+                        child: Column(
+                          children: [
+                            Container(
+                              width: 64,
+                              height: 64,
+                              decoration: BoxDecoration(
+                                shape: BoxShape.circle,
+                                color: Colors.white.withOpacity(0.12),
+                                border: Border.all(
+                                  color: Colors.white.withOpacity(0.3),
+                                  width: 1.5,
+                                ),
+                              ),
+                              child: const Icon(
+                                Icons.admin_panel_settings_outlined,
+                                size: 32,
+                                color: Colors.white,
+                              ),
+                            ),
+                            const SizedBox(height: 12),
+                            Text(
+                              'Administración',
+                              style: GoogleFonts.playfairDisplay(
+                                fontSize: 20,
+                                fontWeight: FontWeight.w700,
+                                color: Colors.white,
+                              ),
+                            ),
+                            const SizedBox(height: 4),
+                            Text(
+                              'Ingresa el código de administrador',
+                              style: GoogleFonts.inter(
+                                fontSize: 12,
+                                color: Colors.white70,
+                                letterSpacing: 0.3,
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                      // PIN field
+                      Padding(
+                        padding: const EdgeInsets.fromLTRB(28, 28, 28, 8),
+                        child: Column(
+                          children: [
+                            Container(
+                              decoration: BoxDecoration(
+                                color: cardColor,
+                                borderRadius: BorderRadius.circular(14),
+                                border: Border.all(
+                                  color: errorText != null
+                                      ? Colors.red.shade300
+                                      : const Color(
+                                          0xFF0F3460,
+                                        ).withOpacity(0.2),
+                                ),
+                              ),
+                              child: TextField(
+                                controller: pinController,
+                                keyboardType: TextInputType.number,
+                                obscureText: true,
+                                maxLength: 4,
+                                textAlign: TextAlign.center,
+                                style: GoogleFonts.playfairDisplay(
+                                  fontSize: 28,
+                                  fontWeight: FontWeight.w700,
+                                  color: const Color(0xFF0F3460),
+                                  letterSpacing: 16,
+                                ),
+                                decoration: InputDecoration(
+                                  counterText: '',
+                                  border: InputBorder.none,
+                                  hintText: '• • • •',
+                                  hintStyle: GoogleFonts.inter(
+                                    fontSize: 18,
+                                    color: Colors.black26,
+                                    letterSpacing: 12,
+                                  ),
+                                  contentPadding: const EdgeInsets.symmetric(
+                                    vertical: 16,
+                                    horizontal: 16,
+                                  ),
+                                ),
+                                onChanged: (_) {
+                                  if (errorText != null) {
+                                    setDialogState(() => errorText = null);
+                                  }
+                                },
+                              ),
+                            ),
+                            if (errorText != null) ...[
+                              const SizedBox(height: 8),
+                              Row(
+                                children: [
+                                  const Icon(
+                                    Icons.error_outline,
+                                    size: 14,
+                                    color: Colors.red,
+                                  ),
+                                  const SizedBox(width: 4),
+                                  Text(
+                                    errorText!,
+                                    style: GoogleFonts.inter(
+                                      fontSize: 12,
+                                      color: Colors.red,
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            ],
+                          ],
+                        ),
+                      ),
+                      // Buttons
+                      Padding(
+                        padding: const EdgeInsets.fromLTRB(28, 8, 28, 24),
+                        child: Row(
+                          children: [
+                            Expanded(
+                              child: TextButton(
+                                onPressed: () => Navigator.of(ctx).pop(),
+                                style: TextButton.styleFrom(
+                                  foregroundColor: Colors.black45,
+                                  padding: const EdgeInsets.symmetric(
+                                    vertical: 14,
+                                  ),
+                                ),
+                                child: Text(
+                                  'CANCELAR',
+                                  style: GoogleFonts.inter(
+                                    fontSize: 13,
+                                    fontWeight: FontWeight.w600,
+                                    letterSpacing: 0.8,
+                                  ),
+                                ),
+                              ),
+                            ),
+                            const SizedBox(width: 12),
+                            Expanded(
+                              flex: 2,
+                              child: ElevatedButton(
+                                style: ElevatedButton.styleFrom(
+                                  backgroundColor: const Color(0xFF0F3460),
+                                  foregroundColor: Colors.white,
+                                  elevation: 0,
+                                  shape: RoundedRectangleBorder(
+                                    borderRadius: BorderRadius.circular(12),
+                                  ),
+                                  padding: const EdgeInsets.symmetric(
+                                    vertical: 14,
+                                  ),
+                                ),
+                                onPressed: () {
+                                  if (pinController.text == correctPin) {
+                                    Navigator.of(ctx).pop();
+                                    Navigator.of(context).push(
+                                      MaterialPageRoute(
+                                        builder: (_) => const AdminScreen(),
+                                      ),
+                                    );
+                                  } else {
+                                    setDialogState(
+                                      () => errorText = 'Código incorrecto',
+                                    );
+                                    pinController.clear();
+                                  }
+                                },
+                                child: Text(
+                                  'INGRESAR',
+                                  style: GoogleFonts.inter(
+                                    fontSize: 13,
+                                    fontWeight: FontWeight.w700,
+                                    letterSpacing: 0.8,
+                                  ),
+                                ),
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              ),
+            ),
+          );
+        },
+      );
+    },
+  );
+}
+
+// ── Admin Screen ──
+class AdminScreen extends StatefulWidget {
+  const AdminScreen({super.key});
+
+  @override
+  State<AdminScreen> createState() => _AdminScreenState();
+}
+
+class _AdminScreenState extends State<AdminScreen>
+    with SingleTickerProviderStateMixin {
+  static const Color bgColor = Color(0xFFFCF9F5);
+  static const Color cardColor = Color(0xFFF6EFE8);
+  static const Color rustColor = Color(0xFFA03215);
+  static const Color adminColor = Color(0xFF0F3460);
+
+  late TabController _tabController;
+
+  @override
+  void initState() {
+    super.initState();
+    _tabController = TabController(length: 3, vsync: this);
+  }
+
+  @override
+  void dispose() {
+    _tabController.dispose();
+    super.dispose();
+  }
+
+  List<Map<String, dynamic>> _parseOrders(Map<dynamic, dynamic> data) {
+    final list = data.entries.map((e) {
+      return {
+        'key': e.key as String,
+        ...Map<String, dynamic>.from(e.value as Map),
+      };
+    }).toList();
+    list.sort(
+      (a, b) => ((b['timestamp'] as int? ?? 0).compareTo(
+        a['timestamp'] as int? ?? 0,
+      )),
+    );
+    return list;
+  }
+
+  bool _isToday(int timestamp) {
+    final now = DateTime.now();
+    final dt = DateTime.fromMillisecondsSinceEpoch(timestamp);
+    return dt.year == now.year && dt.month == now.month && dt.day == now.day;
+  }
+
+  Map<String, dynamic> _topDishes(List<Map<String, dynamic>> orders) {
+    final Map<String, int> counts = {};
+    final Map<String, double> revenues = {};
+    for (final o in orders) {
+      for (final item in (o['items'] as List? ?? [])) {
+        final name = item['name'] as String? ?? '?';
+        final qty = (item['quantity'] as int? ?? 1);
+        final price = (item['price'] as num? ?? 0).toDouble();
+        counts[name] = (counts[name] ?? 0) + qty;
+        revenues[name] = (revenues[name] ?? 0) + price * qty;
+      }
+    }
+    final sorted = counts.entries.toList()
+      ..sort((a, b) => b.value.compareTo(a.value));
+    return {'sorted': sorted, 'revenues': revenues};
+  }
+
+  Map<String, List<Map<String, dynamic>>> _groupByDay(
+    List<Map<String, dynamic>> orders,
+  ) {
+    final Map<String, List<Map<String, dynamic>>> groups = {};
+    for (final o in orders) {
+      final dt = DateTime.fromMillisecondsSinceEpoch(
+        o['timestamp'] as int? ?? 0,
+      );
+      final key =
+          '${dt.year}-${dt.month.toString().padLeft(2, '0')}-${dt.day.toString().padLeft(2, '0')}';
+      (groups[key] ??= []).add(o);
+    }
+    return groups;
+  }
+
+  void _confirmClearOrders() {
+    showDialog(
+      context: context,
+      builder: (ctx) => Dialog(
+        backgroundColor: bgColor,
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
+        child: Padding(
+          padding: const EdgeInsets.all(24),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              const Icon(Icons.delete_outline, color: Colors.red, size: 40),
+              const SizedBox(height: 12),
+              Text(
+                'Eliminar pedidos completados',
+                textAlign: TextAlign.center,
+                style: GoogleFonts.playfairDisplay(
+                  fontWeight: FontWeight.w700,
+                  fontSize: 18,
+                ),
+              ),
+              const SizedBox(height: 8),
+              Text(
+                'Se eliminarán todos los pedidos con estado "Entregado". Esta acción no se puede deshacer.',
+                textAlign: TextAlign.center,
+                style: GoogleFonts.inter(
+                  fontSize: 13,
+                  color: Colors.black54,
+                  height: 1.5,
+                ),
+              ),
+              const SizedBox(height: 24),
+              Row(
+                children: [
+                  Expanded(
+                    child: OutlinedButton(
+                      onPressed: () => Navigator.of(ctx).pop(),
+                      style: OutlinedButton.styleFrom(
+                        padding: const EdgeInsets.symmetric(vertical: 14),
+                        side: const BorderSide(color: Colors.black26),
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(12),
+                        ),
+                      ),
+                      child: Text(
+                        'Cancelar',
+                        style: GoogleFonts.inter(
+                          color: Colors.black54,
+                          fontWeight: FontWeight.w600,
+                        ),
+                      ),
+                    ),
+                  ),
+                  const SizedBox(width: 12),
+                  Expanded(
+                    child: ElevatedButton(
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: Colors.red,
+                        foregroundColor: Colors.white,
+                        elevation: 0,
+                        padding: const EdgeInsets.symmetric(vertical: 14),
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(12),
+                        ),
+                      ),
+                      onPressed: () async {
+                        Navigator.of(ctx).pop();
+                        final ref = FirebaseDatabase.instance.ref('orders');
+                        final snap = await ref.get();
+                        if (snap.value != null) {
+                          final data = snap.value as Map<dynamic, dynamic>;
+                          for (final e in data.entries) {
+                            final o = Map<String, dynamic>.from(e.value as Map);
+                            if (o['status'] == 'delivered') {
+                              await ref.child(e.key.toString()).remove();
+                            }
+                          }
+                        }
+                        if (mounted) {
+                          ScaffoldMessenger.of(context).showSnackBar(
+                            SnackBar(
+                              content: Text(
+                                'Pedidos completados eliminados',
+                                style: GoogleFonts.inter(),
+                              ),
+                              backgroundColor: const Color(0xFF2B702B),
+                            ),
+                          );
+                        }
+                      },
+                      child: Text(
+                        'Eliminar',
+                        style: GoogleFonts.inter(fontWeight: FontWeight.w700),
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      backgroundColor: bgColor,
+      appBar: AppBar(
+        backgroundColor: adminColor,
+        elevation: 0,
+        leading: IconButton(
+          icon: const Icon(Icons.arrow_back, color: Colors.white),
+          onPressed: () => Navigator.of(context).pop(),
+        ),
+        title: Text(
+          'Administración',
+          style: GoogleFonts.playfairDisplay(
+            color: Colors.white,
+            fontSize: 22,
+            fontWeight: FontWeight.w600,
+            fontStyle: FontStyle.italic,
+          ),
+        ),
+        centerTitle: false,
+        bottom: TabBar(
+          controller: _tabController,
+          indicatorColor: Colors.white,
+          indicatorWeight: 2,
+          labelColor: Colors.white,
+          unselectedLabelColor: Colors.white54,
+          labelStyle: GoogleFonts.inter(
+            fontWeight: FontWeight.w700,
+            fontSize: 12,
+            letterSpacing: 0.8,
+          ),
+          tabs: const [
+            Tab(text: 'RESUMEN'),
+            Tab(text: 'PEDIDOS'),
+            Tab(text: 'POR DÍA'),
+          ],
+        ),
+      ),
+      body: StreamBuilder(
+        stream: FirebaseDatabase.instance.ref('orders').onValue,
+        builder: (context, snapshot) {
+          if (snapshot.connectionState == ConnectionState.waiting) {
+            return const Center(
+              child: CircularProgressIndicator(color: adminColor),
+            );
+          }
+
+          List<Map<String, dynamic>> orders = [];
+          if (snapshot.hasData && snapshot.data!.snapshot.value != null) {
+            orders = _parseOrders(
+              snapshot.data!.snapshot.value as Map<dynamic, dynamic>,
+            );
+          }
+
+          final todayOrders = orders
+              .where((o) => _isToday(o['timestamp'] as int? ?? 0))
+              .toList();
+          final todayRevenue = todayOrders.fold<double>(
+            0,
+            (s, o) => s + ((o['totalPrice'] as num?)?.toDouble() ?? 0),
+          );
+          final totalRevenue = orders.fold<double>(
+            0,
+            (s, o) => s + ((o['totalPrice'] as num?)?.toDouble() ?? 0),
+          );
+          final topDishes = _topDishes(orders);
+          final byDay = _groupByDay(orders);
+
+          return TabBarView(
+            controller: _tabController,
+            children: [
+              _buildSummaryTab(
+                orders,
+                todayOrders,
+                todayRevenue,
+                totalRevenue,
+                topDishes,
+              ),
+              _buildOrdersTab(orders),
+              _buildByDayTab(byDay),
+            ],
+          );
+        },
+      ),
+    );
+  }
+
+  // ── Tab 1: Summary & KPIs ──
+  Widget _buildSummaryTab(
+    List<Map<String, dynamic>> orders,
+    List<Map<String, dynamic>> todayOrders,
+    double todayRevenue,
+    double totalRevenue,
+    Map<String, dynamic> topDishes,
+  ) {
+    final avgToday = todayOrders.isEmpty
+        ? 0.0
+        : todayRevenue / todayOrders.length;
+
+    return ListView(
+      padding: const EdgeInsets.all(24),
+      children: [
+        _sectionLabel('📅 HOY'),
+        const SizedBox(height: 10),
+        Row(
+          children: [
+            Expanded(
+              child: _kpiCard(
+                'Ingresos hoy',
+                formatCOP(todayRevenue),
+                Icons.attach_money_rounded,
+                rustColor,
+              ),
+            ),
+            const SizedBox(width: 12),
+            Expanded(
+              child: _kpiCard(
+                'Pedidos hoy',
+                '${todayOrders.length}',
+                Icons.receipt_long_rounded,
+                const Color(0xFF2B702B),
+              ),
+            ),
+          ],
+        ),
+        const SizedBox(height: 12),
+        Row(
+          children: [
+            Expanded(
+              child: _kpiCard(
+                'Promedio / pedido',
+                formatCOP(avgToday),
+                Icons.trending_up_rounded,
+                const Color(0xFF007BFF),
+              ),
+            ),
+            const SizedBox(width: 12),
+            Expanded(
+              child: _kpiCard(
+                'Ingreso total',
+                formatCOP(totalRevenue),
+                Icons.account_balance_wallet_rounded,
+                const Color(0xFF9C27B0),
+              ),
+            ),
+          ],
+        ),
+        const SizedBox(height: 12),
+        Row(
+          children: [
+            Expanded(
+              child: _kpiCard(
+                'Total pedidos',
+                '${orders.length}',
+                Icons.bar_chart_rounded,
+                adminColor,
+              ),
+            ),
+            const SizedBox(width: 12),
+            Expanded(
+              child: _kpiCard(
+                'Esta semana',
+                formatCOP(_weekRevenue(orders)),
+                Icons.date_range_rounded,
+                const Color(0xFFE65100),
+              ),
+            ),
+          ],
+        ),
+
+        const SizedBox(height: 28),
+        _sectionLabel('🏆 PLATOS MÁS PEDIDOS'),
+        const SizedBox(height: 12),
+
+        if ((topDishes['sorted'] as List).isEmpty)
+          Center(
+            child: Padding(
+              padding: const EdgeInsets.all(24.0),
+              child: Text(
+                'Sin datos aún',
+                style: GoogleFonts.inter(color: Colors.black38),
+              ),
+            ),
+          )
+        else
+          ...(topDishes['sorted'] as List<MapEntry<String, int>>)
+              .take(5)
+              .toList()
+              .asMap()
+              .entries
+              .map((e) {
+                final rank = e.key + 1;
+                final entry = e.value;
+                final revenue =
+                    (topDishes['revenues'] as Map<String, double>)[entry.key] ??
+                    0;
+                final medalColors = [
+                  const Color(0xFFFFD700),
+                  Colors.grey.shade400,
+                  const Color(0xFFCD7F32),
+                ];
+                final medalColor = rank <= 3
+                    ? medalColors[rank - 1]
+                    : cardColor;
+                return Container(
+                  margin: const EdgeInsets.only(bottom: 10),
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 16,
+                    vertical: 12,
+                  ),
+                  decoration: BoxDecoration(
+                    color: cardColor,
+                    borderRadius: BorderRadius.circular(14),
+                  ),
+                  child: Row(
+                    children: [
+                      Container(
+                        width: 34,
+                        height: 34,
+                        decoration: BoxDecoration(
+                          shape: BoxShape.circle,
+                          color: medalColor,
+                        ),
+                        child: Center(
+                          child: Text(
+                            '$rank',
+                            style: GoogleFonts.inter(
+                              fontSize: 14,
+                              fontWeight: FontWeight.w800,
+                              color: rank <= 3 ? Colors.white : Colors.black38,
+                            ),
+                          ),
+                        ),
+                      ),
+                      const SizedBox(width: 14),
+                      Expanded(
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text(
+                              entry.key,
+                              style: GoogleFonts.inter(
+                                fontWeight: FontWeight.w600,
+                                fontSize: 14,
+                              ),
+                            ),
+                            Text(
+                              '${entry.value} unidades',
+                              style: GoogleFonts.inter(
+                                fontSize: 12,
+                                color: Colors.black45,
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                      Text(
+                        formatCOP(revenue),
+                        style: GoogleFonts.inter(
+                          fontWeight: FontWeight.w700,
+                          color: rustColor,
+                          fontSize: 14,
+                        ),
+                      ),
+                    ],
+                  ),
+                );
+              }),
+
+        const SizedBox(height: 28),
+        _sectionLabel('⚙️ ACCIONES'),
+        const SizedBox(height: 12),
+        SizedBox(
+          width: double.infinity,
+          child: OutlinedButton.icon(
+            onPressed: _confirmClearOrders,
+            icon: const Icon(Icons.delete_outline, color: Colors.red),
+            label: Text(
+              'ELIMINAR PEDIDOS COMPLETADOS',
+              style: GoogleFonts.inter(
+                fontWeight: FontWeight.w700,
+                color: Colors.red,
+                letterSpacing: 0.5,
+                fontSize: 12,
+              ),
+            ),
+            style: OutlinedButton.styleFrom(
+              padding: const EdgeInsets.symmetric(vertical: 14),
+              side: const BorderSide(color: Colors.red),
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(12),
+              ),
+            ),
+          ),
+        ),
+        const SizedBox(height: 8),
+      ],
+    );
+  }
+
+  double _weekRevenue(List<Map<String, dynamic>> orders) {
+    final now = DateTime.now();
+    final weekAgo = now.subtract(const Duration(days: 7));
+    return orders
+        .where((o) {
+          final dt = DateTime.fromMillisecondsSinceEpoch(
+            o['timestamp'] as int? ?? 0,
+          );
+          return dt.isAfter(weekAgo);
+        })
+        .fold(0.0, (s, o) => s + ((o['totalPrice'] as num?)?.toDouble() ?? 0));
+  }
+
+  Widget _kpiCard(String label, String value, IconData icon, Color color) {
+    return Container(
+      padding: const EdgeInsets.all(16),
+      decoration: BoxDecoration(
+        color: cardColor,
+        borderRadius: BorderRadius.circular(16),
+        border: Border.all(color: color.withOpacity(0.15)),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Container(
+            padding: const EdgeInsets.all(6),
+            decoration: BoxDecoration(
+              color: color.withOpacity(0.1),
+              borderRadius: BorderRadius.circular(8),
+            ),
+            child: Icon(icon, color: color, size: 18),
+          ),
+          const SizedBox(height: 10),
+          Text(
+            value,
+            style: GoogleFonts.playfairDisplay(
+              fontSize: 18,
+              fontWeight: FontWeight.w700,
+              color: Colors.black87,
+            ),
+            maxLines: 1,
+            overflow: TextOverflow.ellipsis,
+          ),
+          const SizedBox(height: 3),
+          Text(
+            label,
+            style: GoogleFonts.inter(
+              fontSize: 11,
+              color: Colors.black38,
+              fontWeight: FontWeight.w500,
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _sectionLabel(String text) {
+    return Text(
+      text,
+      style: GoogleFonts.inter(
+        fontSize: 11,
+        fontWeight: FontWeight.w700,
+        letterSpacing: 1.2,
+        color: Colors.black38,
+      ),
+    );
+  }
+
+  // ── Tab 2: All Orders list ──
+  Widget _buildOrdersTab(List<Map<String, dynamic>> orders) {
+    if (orders.isEmpty) {
+      return Center(
+        child: Text(
+          'No hay pedidos registrados',
+          style: GoogleFonts.inter(fontSize: 16, color: Colors.black38),
+        ),
+      );
+    }
+    return ListView.builder(
+      padding: const EdgeInsets.all(24),
+      itemCount: orders.length,
+      itemBuilder: (_, index) {
+        final o = orders[index];
+        final orderId = o['key'] as String? ?? '';
+        final ts = o['timestamp'] as int? ?? 0;
+        final dt = DateTime.fromMillisecondsSinceEpoch(ts);
+        final items = o['items'] as List? ?? [];
+        final total = (o['totalPrice'] as num?)?.toDouble() ?? 0;
+        final tableNum = o['tableNumber'] as int? ?? 0;
+        final status = o['status'] as String? ?? 'preparing';
+
+        Color sBg;
+        String sLabel;
+        if (status == 'preparing') {
+          sBg = const Color(0xFFF5E0D8);
+          sLabel = 'En preparación';
+        } else if (status == 'ready') {
+          sBg = const Color(0xFFD9F2FB);
+          sLabel = 'Listo';
+        } else {
+          sBg = const Color(0xFFDEE8DD);
+          sLabel = 'Entregado';
+        }
+
+        return Container(
+          margin: const EdgeInsets.only(bottom: 16),
+          decoration: BoxDecoration(
+            color: cardColor,
+            borderRadius: BorderRadius.circular(16),
+          ),
+          padding: const EdgeInsets.all(16),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        '#SA-${orderId.length > 5 ? orderId.substring(orderId.length - 5).toUpperCase() : orderId.toUpperCase()}',
+                        style: GoogleFonts.playfairDisplay(
+                          fontSize: 16,
+                          fontWeight: FontWeight.w700,
+                        ),
+                      ),
+                      Text(
+                        '${dt.day.toString().padLeft(2, '0')}/${dt.month.toString().padLeft(2, '0')}/${dt.year}  ${dt.hour.toString().padLeft(2, '0')}:${dt.minute.toString().padLeft(2, '0')}',
+                        style: GoogleFonts.inter(
+                          fontSize: 12,
+                          color: Colors.black38,
+                        ),
+                      ),
+                    ],
+                  ),
+                  Column(
+                    crossAxisAlignment: CrossAxisAlignment.end,
+                    children: [
+                      if (tableNum > 0)
+                        Container(
+                          margin: const EdgeInsets.only(bottom: 6),
+                          padding: const EdgeInsets.symmetric(
+                            horizontal: 10,
+                            vertical: 4,
+                          ),
+                          decoration: BoxDecoration(
+                            color: rustColor,
+                            borderRadius: BorderRadius.circular(20),
+                          ),
+                          child: Text(
+                            'Mesa $tableNum',
+                            style: GoogleFonts.inter(
+                              fontSize: 11,
+                              fontWeight: FontWeight.w700,
+                              color: Colors.white,
+                            ),
+                          ),
+                        ),
+                      Container(
+                        padding: const EdgeInsets.symmetric(
+                          horizontal: 10,
+                          vertical: 4,
+                        ),
+                        decoration: BoxDecoration(
+                          color: sBg,
+                          borderRadius: BorderRadius.circular(20),
+                        ),
+                        child: Text(
+                          sLabel,
+                          style: GoogleFonts.inter(
+                            fontSize: 11,
+                            fontWeight: FontWeight.w600,
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
+                ],
+              ),
+              const Divider(height: 20),
+              ...items.map(
+                (item) => Padding(
+                  padding: const EdgeInsets.only(bottom: 4),
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      Text(
+                        '${item['quantity']}× ${item['name']}',
+                        style: GoogleFonts.inter(
+                          fontSize: 13,
+                          color: Colors.black87,
+                        ),
+                      ),
+                      Text(
+                        formatCOP(
+                          (item['price'] as num).toDouble() *
+                              (item['quantity'] as int),
+                        ),
+                        style: GoogleFonts.inter(
+                          fontSize: 13,
+                          fontWeight: FontWeight.w600,
+                          color: Colors.black54,
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              ),
+              const Divider(height: 20),
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  Text(
+                    'TOTAL',
+                    style: GoogleFonts.inter(
+                      fontSize: 11,
+                      fontWeight: FontWeight.w700,
+                      letterSpacing: 1.2,
+                      color: Colors.black38,
+                    ),
+                  ),
+                  Text(
+                    formatCOP(total),
+                    style: GoogleFonts.playfairDisplay(
+                      fontSize: 18,
+                      fontWeight: FontWeight.w700,
+                      color: rustColor,
+                    ),
+                  ),
+                ],
+              ),
+            ],
+          ),
+        );
+      },
+    );
+  }
+
+  // ── Tab 3: Revenue by day ──
+  Widget _buildByDayTab(Map<String, List<Map<String, dynamic>>> byDay) {
+    if (byDay.isEmpty) {
+      return Center(
+        child: Text(
+          'No hay pedidos registrados',
+          style: GoogleFonts.inter(fontSize: 16, color: Colors.black38),
+        ),
+      );
+    }
+
+    final sortedDays = byDay.keys.toList()..sort((a, b) => b.compareTo(a));
+
+    return ListView(
+      padding: const EdgeInsets.all(24),
+      children: sortedDays.map((day) {
+        final dayOrders = byDay[day]!;
+        final dayTotal = dayOrders.fold<double>(
+          0,
+          (s, o) => s + ((o['totalPrice'] as num?)?.toDouble() ?? 0),
+        );
+        final parts = day.split('-');
+        final label = '${parts[2]}/${parts[1]}/${parts[0]}';
+
+        return Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            // Day header card
+            Container(
+              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+              margin: const EdgeInsets.only(bottom: 10),
+              decoration: BoxDecoration(
+                gradient: LinearGradient(
+                  colors: [adminColor, adminColor.withOpacity(0.75)],
+                ),
+                borderRadius: BorderRadius.circular(14),
+              ),
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  Row(
+                    children: [
+                      const Icon(
+                        Icons.calendar_today_outlined,
+                        size: 14,
+                        color: Colors.white70,
+                      ),
+                      const SizedBox(width: 8),
+                      Text(
+                        label,
+                        style: GoogleFonts.inter(
+                          fontWeight: FontWeight.w700,
+                          color: Colors.white,
+                          fontSize: 14,
+                        ),
+                      ),
+                    ],
+                  ),
+                  Column(
+                    crossAxisAlignment: CrossAxisAlignment.end,
+                    children: [
+                      Text(
+                        formatCOP(dayTotal),
+                        style: GoogleFonts.playfairDisplay(
+                          fontWeight: FontWeight.w700,
+                          color: Colors.white,
+                          fontSize: 16,
+                        ),
+                      ),
+                      Text(
+                        '${dayOrders.length} pedido${dayOrders.length != 1 ? 's' : ''}',
+                        style: GoogleFonts.inter(
+                          fontSize: 11,
+                          color: Colors.white60,
+                        ),
+                      ),
+                    ],
+                  ),
+                ],
+              ),
+            ),
+
+            // Each order in that day
+            ...dayOrders.map((o) {
+              final ts = o['timestamp'] as int? ?? 0;
+              final dt = DateTime.fromMillisecondsSinceEpoch(ts);
+              final tableNum = o['tableNumber'] as int? ?? 0;
+              final total = (o['totalPrice'] as num?)?.toDouble() ?? 0;
+              final items = o['items'] as List? ?? [];
+              return Container(
+                margin: const EdgeInsets.only(bottom: 8),
+                padding: const EdgeInsets.all(14),
+                decoration: BoxDecoration(
+                  color: cardColor,
+                  borderRadius: BorderRadius.circular(12),
+                ),
+                child: Row(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Expanded(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Row(
+                            children: [
+                              if (tableNum > 0) ...[
+                                Container(
+                                  padding: const EdgeInsets.symmetric(
+                                    horizontal: 8,
+                                    vertical: 2,
+                                  ),
+                                  decoration: BoxDecoration(
+                                    color: rustColor,
+                                    borderRadius: BorderRadius.circular(20),
+                                  ),
+                                  child: Text(
+                                    'Mesa $tableNum',
+                                    style: GoogleFonts.inter(
+                                      fontSize: 10,
+                                      fontWeight: FontWeight.w700,
+                                      color: Colors.white,
+                                    ),
+                                  ),
+                                ),
+                                const SizedBox(width: 8),
+                              ],
+                              Text(
+                                '${dt.hour.toString().padLeft(2, '0')}:${dt.minute.toString().padLeft(2, '0')}',
+                                style: GoogleFonts.inter(
+                                  fontSize: 12,
+                                  color: Colors.black38,
+                                ),
+                              ),
+                            ],
+                          ),
+                          const SizedBox(height: 4),
+                          Text(
+                            items
+                                .map((i) => '${i['quantity']}× ${i['name']}')
+                                .join(', '),
+                            style: GoogleFonts.inter(
+                              fontSize: 12,
+                              color: Colors.black54,
+                            ),
+                            maxLines: 2,
+                            overflow: TextOverflow.ellipsis,
+                          ),
+                        ],
+                      ),
+                    ),
+                    const SizedBox(width: 12),
+                    Text(
+                      formatCOP(total),
+                      style: GoogleFonts.playfairDisplay(
+                        fontWeight: FontWeight.w700,
+                        color: Colors.black87,
+                        fontSize: 14,
+                      ),
+                    ),
+                  ],
+                ),
+              );
+            }),
+            const SizedBox(height: 16),
+          ],
+        );
+      }).toList(),
     );
   }
 }

@@ -141,6 +141,8 @@ class _WelcomeScreenState extends State<WelcomeScreen>
                             onSelected: (value) {
                               if (value == 'chef') {
                                 showChefAuthDialog(context);
+                              } else if (value == 'admin') {
+                                showAdminAuthDialog(context);
                               }
                             },
                             itemBuilder: (_) => [
@@ -159,6 +161,26 @@ class _WelcomeScreenState extends State<WelcomeScreen>
                                       style: GoogleFonts.inter(
                                         fontWeight: FontWeight.w600,
                                         color: const Color(0xFFA03215),
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                              ),
+                              PopupMenuItem(
+                                value: 'admin',
+                                child: Row(
+                                  children: [
+                                    const Icon(
+                                      Icons.admin_panel_settings_outlined,
+                                      color: Color(0xFF0F3460),
+                                      size: 20,
+                                    ),
+                                    const SizedBox(width: 10),
+                                    Text(
+                                      'Admin',
+                                      style: GoogleFonts.inter(
+                                        fontWeight: FontWeight.w600,
+                                        color: const Color(0xFF0F3460),
                                       ),
                                     ),
                                   ],
